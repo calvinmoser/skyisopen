@@ -2,13 +2,15 @@
 <table><tr>
   <td><h2>Arrivals</h2></td>
 <!--  <td><mat-checkbox [checked]="includePositionData" (change)="toggleIncludePosData($event)">Include Position Data</mat-checkbox></td>-->
-<!--  <td>API Usage: {{ totalCalls }}</td>-->
+    <td><mat-checkbox>Include Position Data</mat-checkbox></td>
+  <td>API Usage: {{ totalCalls }}</td>
 </tr></table>
 
-<!--
-<h3>{{ lastUpdate }}</h3>
-<h3>{{ lastUpdate }}</h3>
--->
-
-<!--<table mat-table matSort [dataSource]="dataSource" class="mat-elevation-z8">-->
-<!--</table>-->
+<table mat-table matSort [dataSource]="dataSource" class="mat-elevation-z8">
+  <ng-container matColumnDef="flight">
+    <th mat-header-cell *matHeaderCellDef>Flight</th>
+    <td mat-cell *matCellDef="let flight;" style="font-weight: bold">{{ flight.id }}</td>
+  </ng-container>
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let emprow; let flight; columns: displayedColumns" [style.background-color]="'' + flight.color"></tr>
+</table>
