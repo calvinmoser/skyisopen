@@ -1,15 +1,18 @@
-<table><tr>
-  <td><h2 class="primary-text mat-h1">Arrivals</h2></td>
-<!--  <td><mat-checkbox [checked]="includePositionData" (change)="toggleIncludePosData($event)">Include Position Data</mat-checkbox></td>-->
+<h2 class="primary-text mat-h1">Arrivals</h2>
+<div class="container">
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+    <ng-container matColumnDef="flight">
+      <th mat-header-cell class="mat-header-cell" *matHeaderCellDef>Flight</th>
+      <td mat-cell class="mat-cell" *matCellDef="let flight;" style="font-weight: bold">{{ flight.id }}</td>
+    </ng-container>
+    <tr mat-header-row class="mat-header-row" *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let emprow; let flight; columns: displayedColumns" [style.background-color]="'' + flight.color"></tr>
+  </table>
+</div>
+<div class="footer">
+  <table><tr>
+    <td></td>
     <td><mat-checkbox class="checkbox" color="primary">Include Position Data</mat-checkbox></td>
-  <td class="primary-text">API Usage: {{ totalCalls }}</td>
-</tr></table>
-
-<table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-  <ng-container matColumnDef="flight">
-    <th mat-header-cell class="mat-header-cell" *matHeaderCellDef>Flight</th>
-    <td mat-cell class="mat-cell" *matCellDef="let flight;" style="font-weight: bold">{{ flight.id }}</td>
-  </ng-container>
-  <tr mat-header-row class="mat-header-row" *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let emprow; let flight; columns: displayedColumns" [style.background-color]="'' + flight.color"></tr>
-</table>
+    <td class="primary-text">API Usage: {{ totalCalls }}</td>
+  </tr></table>
+</div>

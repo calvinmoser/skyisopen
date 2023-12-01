@@ -1,0 +1,17 @@
+table {
+    width: 100%;
+}
+
+.footer {
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+}
+
+.container {
+  position:absolute;
+  width: 99%;
+  top: 100px;
+  bottom: 50px;
+  overflow: auto;
+}
