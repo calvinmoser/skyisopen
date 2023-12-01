@@ -1,8 +1,10 @@
+<body class="mat-app-background">
 <h1>Indianapolis Airport</h1>
+
 <table><tr>
   <td><h2>Arrivals</h2></td>
 <!--  <td><mat-checkbox [checked]="includePositionData" (change)="toggleIncludePosData($event)">Include Position Data</mat-checkbox></td>-->
-    <td><mat-checkbox>Include Position Data</mat-checkbox></td>
+    <td><mat-checkbox color="primary">Include Position Data</mat-checkbox></td>
   <td>API Usage: {{ totalCalls }}</td>
 </tr></table>
 
@@ -14,3 +16,4 @@
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let emprow; let flight; columns: displayedColumns" [style.background-color]="'' + flight.color"></tr>
 </table>
+</body>
