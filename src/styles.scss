@@ -1,3 +1,33 @@
 /* You can add global styles to this file, and also import other style files */
-@import '@angular/material/prebuilt-themes/purple-green.css';
-//@import '@angular/material/prebuilt-themes/deeppurple-amber.css';
+@use '@angular/material' as mat;
+
+@include mat.core();
+$primary: mat.define-palette(mat.$deep-purple-palette);
+$accent:  mat.define-palette(mat.$green-palette);
+$warn:    mat.define-palette(mat.$red-palette);
+$theme: mat.define-dark-theme($primary, $accent, $warn);
+
+//@include mat.all-component-themes($theme);
+@include mat.core-theme($theme);
+@include mat.button-theme($theme);
+@include mat.checkbox-theme($theme);
+@include mat.table-theme($theme);
+
+// This is for applying material typography to non-material components like headers, text, etc
+$my-typography: mat.define-typography-config();
+@include mat.typography-hierarchy($my-typography);
+
+.primary-header {
+  color: mat.get-theme-color($theme, primary, default);
+}
+
+.primary-text, .checkbox label {
+  color: mat.get-theme-color($theme, primary, lighter);
+}
+
+tr.mat-header-row {
+  background-color: mat.get-theme-color($theme, primary, default);
+}
+.mat-cell {
+    color: mat.get-theme-color($theme, primary, lighter);
+  }
