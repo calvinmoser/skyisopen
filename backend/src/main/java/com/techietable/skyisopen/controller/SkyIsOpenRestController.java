@@ -1,5 +1,7 @@
 package com.techietable.skyisopen.controller;
 
+import com.techietable.skyisopen.dto.Flight;
+import com.techietable.skyisopen.dto.ScheduledArrivals;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.*;
@@ -32,17 +34,17 @@ public class SkyIsOpenRestController {
     }
 
     @GetMapping()
-    public synchronized ResponseEntity<String> getAllFlights() {
+    public synchronized ResponseEntity<ScheduledArrivals> getAllFlights() {
         timestamps.removeIf(t -> Duration.between(t, Instant.now()).toSeconds() > 60);
         if (timestamps.size() >= 10) {
             System.out.println("< < < < < < < ERROR: Too many requests in past minute. > > > > > > > > > >");
-            return new ResponseEntity<String>("SkyIsOpen: Request not made, too many calls in past minute.", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<ScheduledArrivals>(new ScheduledArrivals(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         timestamps.add(Instant.now());
 
-
-        ResponseEntity<String> response = new RestTemplate().exchange(ARRIVALS_URL, HttpMethod.GET, entity, String.class);
+        ResponseEntity<ScheduledArrivals> response = new RestTemplate().exchange(ARRIVALS_URL, HttpMethod.GET, entity, ScheduledArrivals.class);
         System.out.println("New data retrieved: < < < " + new Date() + "> > >");
+
 
         return response;
     }
@@ -50,17 +52,17 @@ public class SkyIsOpenRestController {
     List<Instant> timestamps = new ArrayList<>();
 
     @GetMapping("/flights/{id}/position")
-    public synchronized ResponseEntity<String> getFlightPosition(@PathVariable String id) {
+    public synchronized ResponseEntity<Flight> getFlightPosition(@PathVariable String id) {
         timestamps.removeIf(t -> Duration.between(t, Instant.now()).toSeconds() > 60);
         if (timestamps.size() > 10) {
             System.out.println("< < < < < < < ERROR: Too many requests in past minute. > > > > > > > > > >");
-            return new ResponseEntity<String>("SkyIsOpen: Request not made, too many calls in past minute.", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<Flight>(new Flight(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         timestamps.add(Instant.now());
 
         System.out.println("Retrieving Position for: " + id + " (last minute: " + timestamps.size() + ")");
         String url = FLIGHT_URL + id + "/position";
 
-        return new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
+        return new RestTemplate().exchange(url, HttpMethod.GET, entity, Flight.class);
     }
 }
