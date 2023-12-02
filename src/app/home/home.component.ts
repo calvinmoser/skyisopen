@@ -8,7 +8,7 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
   standalone: true,
   imports: [MatCheckboxModule, MatTableModule, ],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.css'
+  styleUrl: './home.component.scss'
 })
 
 export class HomeComponent {

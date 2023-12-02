@@ -8,7 +8,7 @@ import {HomeComponent} from './home/home.component';
   standalone: true,
   imports: [CommonModule, RouterOutlet, HomeComponent],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
   title = 'Sky is.. closed?';
