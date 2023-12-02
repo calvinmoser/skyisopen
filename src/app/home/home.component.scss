@@ -1,3 +1,15 @@
+@use '@angular/material' as mat;
+@import "../../styles.scss";
+
+tr.mat-header-row {
+  font-weight: bold;
+  font-size: 18px;
+  color: mat.get-theme-color($theme, primary, lighter);
+  background-color: mat.get-theme-color($theme, primary, default);
+}
+.mat-cell {
+   color: mat.get-theme-color($theme, primary, lighter);
+}
 table {
     width: 100%;
 }

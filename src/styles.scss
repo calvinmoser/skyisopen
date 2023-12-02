@@ -24,10 +24,3 @@ $my-typography: mat.define-typography-config();
 .primary-text, .checkbox label {
   color: mat.get-theme-color($theme, primary, lighter);
 }
-
-tr.mat-header-row {
-  background-color: mat.get-theme-color($theme, primary, default);
-}
-.mat-cell {
-    color: mat.get-theme-color($theme, primary, lighter);
-  }
