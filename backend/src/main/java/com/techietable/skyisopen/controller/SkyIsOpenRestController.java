@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -42,11 +44,15 @@ public class SkyIsOpenRestController {
         }
         timestamps.add(Instant.now());
 
-        ResponseEntity<ScheduledArrivals> response = new RestTemplate().exchange(ARRIVALS_URL, HttpMethod.GET, entity, ScheduledArrivals.class);
-        System.out.println("New data retrieved: < < < " + new Date() + "> > >");
+        try {
+            ResponseEntity<ScheduledArrivals> response = new RestTemplate().exchange(ARRIVALS_URL, HttpMethod.GET, entity, ScheduledArrivals.class);
+            System.out.println("New data retrieved: < < < " + new Date() + "> > >");
+            return response;
+        } catch (HttpClientErrorException e) {
+            // Pass back the response with slick new Spring Boot feature
+            throw new ResponseStatusException(e.getStatusCode(), e.getMessage());
+        }
 
-
-        return response;
     }
 
     List<Instant> timestamps = new ArrayList<>();
@@ -63,6 +69,11 @@ public class SkyIsOpenRestController {
         System.out.println("Retrieving Position for: " + id + " (last minute: " + timestamps.size() + ")");
         String url = FLIGHT_URL + id + "/position";
 
-        return new RestTemplate().exchange(url, HttpMethod.GET, entity, Flight.class);
+        try {
+            return new RestTemplate().exchange(url, HttpMethod.GET, entity, Flight.class);
+        } catch (HttpClientErrorException e) {
+            // Send response to frontend
+            throw new ResponseStatusException(e.getStatusCode(), e.getMessage());
+        }
     }
 }
