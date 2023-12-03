@@ -7,9 +7,11 @@ tr.mat-header-row {
   color: mat.get-theme-color($theme, primary, lighter);
   background-color: mat.get-theme-color($theme, primary, default);
 }
-.mat-cell {
+
+td {
    color: mat.get-theme-color($theme, primary, lighter);
 }
+
 table {
     width: 100%;
 }
