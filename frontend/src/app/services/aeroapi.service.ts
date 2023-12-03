@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { Flight, Position } from '../model/flight';
 
@@ -14,5 +15,8 @@ export class AeroAPIService{
 
   getScheduledArrivals(): Observable<Flight[]> {
     return this.httpClient.get<Flight[]>(this.scheduled_arrivals_url)
+      .pipe(
+        map(flights => flights.map(flight => new Flight(flight)))
+      );
   }
 }

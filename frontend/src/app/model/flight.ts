@@ -74,6 +74,9 @@ export class Flight {
   added: string = "";
   log: string = "";
 
+  constructor(data: Object|Flight) {
+    Object.assign(this,data);
+  }
 }
 
 export interface Airport {
