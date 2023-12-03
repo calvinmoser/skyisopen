@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatCheckboxChange } from '@angular/material/checkbox';
+import { AeroAPIService } from '../services/aeroapi.service';
+import { Flight, Position } from '../model/flight';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MatCheckboxModule, MatTableModule, ],
+  imports: [MatCheckboxModule, MatTableModule, CommonModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -16,31 +18,16 @@ export class HomeComponent {
   dataSource = new MatTableDataSource<Flight>([]);
   flightMap: Map <String, Flight> = new Map<String, Flight>();
   totalCalls: number = 0;
-  displayedColumns: string[] = ["flight"];
+  displayedColumns: string[] = [ "fa_flight_id", "flight", "aircraft_type", "estimated_on", "origin", "groundspeed",
+    "altitude", "angle", "to_airport", "distance", "estimated", "next_update", "updated", /*"remove"*/ ];
 
-  constructor() {
-    this.flightMap.set("1", new Flight().setId("DAL1234"));
-    this.flightMap.set("2", new Flight().setId("AA1409"));
-    this.flightMap.set("3", new Flight().setId("FDX2024"));
-    this.updateDataSource();
+  constructor(private aeroAPIservice: AeroAPIService) {}
+
+  ngOnInit(): void {
+    this.aeroAPIservice.getScheduledArrivals()
+      .subscribe(flights => this.dataSource.data = flights);
   }
 
-  updateDataSource() {
-      var flights = Array.from(this.flightMap.values());
-      flights = flights.sort((a,b) => a.next_update - b.next_update);
-      this.dataSource.data = flights;
-   }
-
-}
-
-export class Flight {
-  id: string = "";
-  next_update: number = 0;
-
-  setId (id: string) {
-    this.id = id;
-    return this;
-  }
-
+  removeFlight(flight: Flight) {};
 
 }
