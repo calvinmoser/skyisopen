@@ -36,7 +36,7 @@
       <td mat-cell *matCellDef="let flight">{{ flight.estimated }}</td>
     </ng-container>
     <ng-container matColumnDef="groundspeed">
-      <th mat-header-cell *matHeaderCellDef>groundspeed</th>
+      <th mat-header-cell *matHeaderCellDef>speed</th>
       <td mat-cell *matCellDef="let flight">
         <ng-container *ngIf="flight.last_position">{{ flight.last_position.groundspeed }}</ng-container>
       </td>
