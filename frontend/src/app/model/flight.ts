@@ -77,6 +77,17 @@ export class Flight {
   constructor(data: Object|Flight) {
     Object.assign(this,data);
   }
+
+  calcInitialDistance() {
+    this.to_airport = "" + this.route_distance * (100 - this.progress_percent) / 100;
+    this.writeMessage(this.progress_percent + "% of " + this.route_distance + " miles is " + this.to_airport
+      + " miles. and flying at "+ this.filed_airspeed + " knots.");
+  }
+
+  writeMessage(message: String) {
+    console.log(this.operator + this.flight_number + ": " + message);
+  }
+
 }
 
 export interface Airport {

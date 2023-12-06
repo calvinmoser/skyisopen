@@ -25,7 +25,12 @@ export class HomeComponent {
 
   ngOnInit(): void {
     this.aeroAPIservice.getScheduledArrivals()
-      .subscribe(flights => this.dataSource.data = flights);
+      .subscribe(flights => {
+        for (var flight of flights) {
+          flight.calcInitialDistance();
+        }
+        this.dataSource.data = flights;
+      });
   }
 
   removeFlight(flight: Flight) {};
