@@ -63,14 +63,14 @@ export class Flight {
     update_type: ""
   }
   // extra
-  to_airport: number = 0;
-  distance: number = 0;
+  to_airport: string = "";
+  to_waypoint: string = "";
   estimated: string = "";
-  updated: number = 0;
-  next_update: number = 0;
+  updated: string = "";
+  next_update: string = "";
   color: string = "";
   inside: boolean = false;
-  angle: number = 0;
+  angle: string = "";
   added: string = "";
   log: string = "";
 

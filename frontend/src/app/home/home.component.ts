@@ -19,7 +19,7 @@ export class HomeComponent {
   flightMap: Map <String, Flight> = new Map<String, Flight>();
   totalCalls: number = 0;
   displayedColumns: string[] = [ "fa_flight_id", "flight", "aircraft_type", "estimated_on", "origin", "groundspeed",
-    "altitude", "angle", "to_airport", "distance", "estimated", "next_update", "updated", /*"remove"*/ ];
+    "altitude", "angle", "to_airport", "to_waypoint", "estimated", "next_update", "updated", /*"remove"*/ ];
 
   constructor(private aeroAPIservice: AeroAPIService) {}
 
