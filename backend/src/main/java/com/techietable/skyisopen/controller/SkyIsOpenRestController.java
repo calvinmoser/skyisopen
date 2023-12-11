@@ -5,26 +5,21 @@ import com.techietable.skyisopen.dto.ScheduledArrivals;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.*;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @CrossOrigin()
 @PropertySource("classpath:password.properties")
 public class SkyIsOpenRestController {
     private final HttpEntity<String> entity;
-    final String ARRIVALS_URL = "https://aeroapi.flightaware.com/aeroapi/airports/IND/flights/scheduled_arrivals";
+    final String ARRIVALS_URL = "https://aeroapi.flightaware.com/aeroapi/airports/IND/flights/scheduled_arrivals?max_pages={max_pages}";
     final String FLIGHT_URL = "https://aeroapi.flightaware.com/aeroapi/flights/";
 
     public SkyIsOpenRestController(@Value( "${aeroapi.password}") String password) {
@@ -36,7 +31,7 @@ public class SkyIsOpenRestController {
     }
 
     @GetMapping("/scheduled_arrivals")
-    public synchronized ArrayList<Flight> getScheduledFlights() {
+    public synchronized ArrayList<Flight> getScheduledFlights(@RequestParam(required = false) Integer maxPages) {
         timestamps.removeIf(t -> Duration.between(t, Instant.now()).toSeconds() > 60);
         if (timestamps.size() >= 10) {
             System.out.println("< < < < < < < ERROR: Too many requests in past minute. > > > > > > > > > >");
@@ -44,8 +39,21 @@ public class SkyIsOpenRestController {
         }
         timestamps.add(Instant.now());
 
+        if (maxPages == null) maxPages = 1;
+        else if (maxPages < 1 || maxPages > 10)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "max_pages can be between 1 and 10 inclusively");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("max_pages", maxPages);
+
         try {
-            ResponseEntity<ScheduledArrivals> response = new RestTemplate().exchange(ARRIVALS_URL, HttpMethod.GET, entity, ScheduledArrivals.class);
+            ResponseEntity<ScheduledArrivals> response = new RestTemplate().exchange(
+                    ARRIVALS_URL,
+                    HttpMethod.GET,
+                    entity,
+                    ScheduledArrivals.class,
+                    params
+            );
             if (response.getBody() == null)
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ERROR: body missing in response. Status Code: " + response.getStatusCode());
             ArrayList<Flight> flights = response.getBody().scheduled_arrivals;
