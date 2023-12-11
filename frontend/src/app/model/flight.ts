@@ -75,7 +75,7 @@ export class Flight {
   log: string = "";
 
   constructor(data: Object|Flight) {
-    Object.assign(this,data);
+    Object.assign(this, data);
   }
 
   calcInitialDistance() {

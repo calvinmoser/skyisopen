@@ -1,49 +1,53 @@
-<h2 class="primary-text mat-h1">Arrivals</h2>
-<div class="container">
-  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-    <ng-container matColumnDef="flight">
-      <th mat-header-cell *matHeaderCellDef>flight</th>
-      <td mat-cell *matCellDef="let flight;" style="font-weight: bold">{{ flight.operator }}{{flight.flight_number}}</td>
-    </ng-container>
-    <ng-container matColumnDef="aircraft_type">
-      <th mat-header-cell *matHeaderCellDef>type</th>
-      <td mat-cell *matCellDef="let flight">{{ flight.aircraft_type }}</td>
-    </ng-container>
-    <ng-container matColumnDef="fa_flight_id">
-      <th mat-header-cell *matHeaderCellDef>id</th>
-      <td mat-cell *matCellDef="let flight">{{ flight.fa_flight_id }}</td>
-    </ng-container>
-    <ng-container matColumnDef="scheduled_on">
-      <th mat-header-cell *matHeaderCellDef>scheduled</th>
-      <td mat-cell *matCellDef="let flight">{{ flight.scheduled_on | date: "short" }}</td>
-    </ng-container>
-    <ng-container matColumnDef="estimated_on">
-      <th mat-header-cell *matHeaderCellDef>estimated</th>
-      <td mat-cell *matCellDef="let flight">{{ flight.estimated_on | date: "short" }}</td>
-    </ng-container>
-    <ng-container matColumnDef="origin">
-      <th mat-header-cell *matHeaderCellDef>origin</th>
-      <td mat-cell *matCellDef="let flight">{{ flight.origin.city }}</td>
-    </ng-container>
-    <ng-container matColumnDef="altitude">
-      <th mat-header-cell *matHeaderCellDef>altitude</th>
-      <td mat-cell *matCellDef="let flight">
-        <ng-container *ngIf="flight.last_position">{{ 100 * flight.last_position.altitude }}</ng-container>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="estimated">
-      <th mat-header-cell *matHeaderCellDef>elapsed</th>
-      <td mat-cell *matCellDef="let flight">{{ flight.estimated }}</td>
-    </ng-container>
-    <ng-container matColumnDef="groundspeed">
-      <th mat-header-cell *matHeaderCellDef>speed</th>
-      <td mat-cell *matCellDef="let flight">
-        <ng-container *ngIf="flight.last_position">{{ flight.last_position.groundspeed }}</ng-container>
-      </td>
-    </ng-container>
-      <ng-container matColumnDef="angle">
-        <th mat-header-cell *matHeaderCellDef>angle</th>
-        <td mat-cell *matCellDef="let flight">{{ flight.angle }}</td>
+<mat-tab-group class="container" mat-stretch-tabs="false" mat-align-tabs="start">
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <span class="primary-text mat-h1">Arrivals</span>
+    </ng-template>
+
+    <table mat-table [dataSource]="dataSource">
+      <ng-container matColumnDef="flight">
+        <th mat-header-cell *matHeaderCellDef>flight</th>
+        <td mat-cell *matCellDef="let flight;" style="font-weight: bold">{{ flight.operator }}{{flight.flight_number}}</td>
+      </ng-container>
+      <ng-container matColumnDef="aircraft_type">
+        <th mat-header-cell *matHeaderCellDef>type</th>
+        <td mat-cell *matCellDef="let flight">{{ flight.aircraft_type }}</td>
+      </ng-container>
+      <ng-container matColumnDef="fa_flight_id">
+        <th mat-header-cell *matHeaderCellDef>id</th>
+        <td mat-cell *matCellDef="let flight">{{ flight.fa_flight_id }}</td>
+      </ng-container>
+      <ng-container matColumnDef="scheduled_on">
+        <th mat-header-cell *matHeaderCellDef>scheduled</th>
+        <td mat-cell *matCellDef="let flight">{{ flight.scheduled_on | date: "short" }}</td>
+      </ng-container>
+      <ng-container matColumnDef="estimated_on">
+        <th mat-header-cell *matHeaderCellDef>estimated</th>
+        <td mat-cell *matCellDef="let flight">{{ flight.estimated_on | date: "short" }}</td>
+      </ng-container>
+      <ng-container matColumnDef="origin">
+        <th mat-header-cell *matHeaderCellDef>origin</th>
+        <td mat-cell *matCellDef="let flight">{{ flight.origin.city }}</td>
+      </ng-container>
+      <ng-container matColumnDef="altitude">
+        <th mat-header-cell *matHeaderCellDef>altitude</th>
+        <td mat-cell *matCellDef="let flight">
+          <ng-container *ngIf="flight.last_position">{{ 100 * flight.last_position.altitude }}</ng-container>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="estimated">
+        <th mat-header-cell *matHeaderCellDef>elapsed</th>
+        <td mat-cell *matCellDef="let flight">{{ flight.estimated }}</td>
+      </ng-container>
+      <ng-container matColumnDef="groundspeed">
+        <th mat-header-cell *matHeaderCellDef>speed</th>
+        <td mat-cell *matCellDef="let flight">
+          <ng-container *ngIf="flight.last_position">{{ flight.last_position.groundspeed }}</ng-container>
+        </td>
+      </ng-container>
+        <ng-container matColumnDef="angle">
+          <th mat-header-cell *matHeaderCellDef>angle</th>
+          <td mat-cell *matCellDef="let flight">{{ flight.angle }}</td>
       </ng-container>
       <ng-container matColumnDef="to_airport">
         <th mat-header-cell *matHeaderCellDef>to airport</th>
@@ -54,7 +58,7 @@
         <td mat-cell *matCellDef="let flight">{{ flight.to_waypoint | number: '0.2-2' }}</td>
       </ng-container>
       <ng-container matColumnDef="next_update">
-        <th mat-header-cell *matHeaderCellDef>next update</th>
+      <th mat-header-cell *matHeaderCellDef>next update</th>
         <td mat-cell *matCellDef="let flight"><div>{{ flight.next_update | number: '0.0-0' }}</div><div style="color: green">{{ flight.added }}</div></td>
       </ng-container>
       <ng-container matColumnDef="updated">
@@ -65,10 +69,26 @@
         <th mat-header-cell *matHeaderCellDef>remove</th>
         <td mat-cell *matCellDef="let flight" (dblclick)="removeFlight(flight)">X</td>
       </ng-container>
-    <tr mat-header-row class="mat-header-row" *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-    <tr mat-row *matRowDef="let emprow; let flight; columns: displayedColumns" [style.background-color]="'' + flight.color"></tr>
-  </table>
-</div>
+
+      <tr mat-header-row class="mat-header-row" *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+      <tr mat-row *matRowDef="let emprow; let flight; columns: displayedColumns" [style.background-color]="'' + flight.color"></tr>
+    </table>
+  </mat-tab>
+  <mat-tab>
+    <table mat-table [dataSource]="typeDataSource">
+      <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef>type</th>
+        <td mat-cell *matCellDef="let type;">{{type[0]}}</td>
+      </ng-container>
+      <ng-container matColumnDef="qty">
+        <th mat-header-cell *matHeaderCellDef>quantity</th>
+        <td mat-cell *matCellDef="let type;">{{type[1]}}</td>
+      </ng-container>
+      <tr mat-header-row class="mat-header-row" *matHeaderRowDef="['type', 'qty']; sticky: true"></tr>
+      <tr mat-row *matRowDef="let r; columns: ['type', 'qty']"></tr>
+    </table>
+  </mat-tab>
+</mat-tab-group>
 <div class="footer">
   <table><tbody><tr>
     <td></td>

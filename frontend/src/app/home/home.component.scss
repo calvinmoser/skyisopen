@@ -12,8 +12,8 @@ td {
    color: mat.get-theme-color($theme, primary, lighter);
 }
 
-table {
-    width: 100%;
+.mat-column-type {
+   width: 50px;
 }
 
 .footer {
@@ -25,7 +25,7 @@ table {
 .container {
   position:absolute;
   width: 99%;
-  top: 100px;
+  top: 50px;
   bottom: 50px;
   overflow: auto;
 }
