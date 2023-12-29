@@ -80,8 +80,8 @@ public class Flight {
         public String altitude_change;
         public int groundspeed;
         public int heading;
-        public int latitude;
-        public int longitude;
+        public float latitude;
+        public float longitude;
         public Date timestamp;
         public String update_type;
     }
