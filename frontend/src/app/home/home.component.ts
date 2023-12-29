@@ -34,7 +34,6 @@ export class HomeComponent {
 
   ngOnInit(): void {
     this.getScheduledArrivals(4);
-
   }
 
   getScheduledArrivals(maxPages: number) {
@@ -54,25 +53,30 @@ export class HomeComponent {
       });
   }
 
-  async identifyAircraft(){
-    for (var flight of this.flights) {
-      var position = await this.aeroAPIservice.getFlightPosition(flight.fa_flight_id);
+  identifyAircraft(){
 
-      if (typeof position == "undefined" || position.last_position == null) continue;
+    this.aeroAPIservice.getScheduledArrivals(1)
+      .subscribe(async flights => {
+        this.flights = flights;
+        this.dataSource.data = flights;
+        for (var flight of this.flights) {
+          var position = await this.aeroAPIservice.getFlightPosition(flight.fa_flight_id);
 
-      flight.last_position = position.last_position;
+          if (typeof position == "undefined" || position.last_position == null) continue;
 
-      var to_waypoint = flight.calcDistance(Airport.finalWP, position.last_position);
-      flight.to_waypoint = "" + to_waypoint;
+          flight.last_position = position.last_position;
 
-      var to_airport = flight.calcDistance(Airport.position, position.last_position);
-      flight.to_airport = "" + to_airport;
+          var to_waypoint = flight.calcDistance(Airport.finalWP, position.last_position);
+          flight.to_waypoint = "" + to_waypoint;
 
-      if (to_waypoint < 2) flight.color = "target"; // In target zone
+          var to_airport = flight.calcDistance(Airport.position, position.last_position);
+          flight.to_airport = "" + to_airport;
 
-      if (to_airport > 10) return; // Out of bounds
+          if (to_waypoint < 2) flight.color = "target"; // In target zone
 
-    }
+          if (to_airport > 10) return; // Out of bounds
+        }
+      });
   }
 
   removeFlight(flight: Flight) {};
