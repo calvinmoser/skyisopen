@@ -13,7 +13,7 @@ td {
 
 .target {
   font-weight: bold;
-  background-color: mat.get-theme-color($theme, primary, darker);
+  background-color: mat.get-theme-color($theme, primary, default);
 }
 
 .mat-mdc-row:hover .mat-mdc-cell {
