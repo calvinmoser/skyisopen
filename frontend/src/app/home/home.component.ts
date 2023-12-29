@@ -33,11 +33,12 @@ export class HomeComponent {
   constructor(private aeroAPIservice: AeroAPIService) {}
 
   ngOnInit(): void {
-    this.getScheduledArrivals();
+    this.getScheduledArrivals(4);
+
   }
 
-  async getScheduledArrivals() {
-    this.aeroAPIservice.getScheduledArrivals()
+  getScheduledArrivals(maxPages: number) {
+    this.aeroAPIservice.getScheduledArrivals(maxPages)
       .subscribe(flights => {
         for (var flight of flights) {
           flight.calcInitialDistance();
@@ -67,7 +68,7 @@ export class HomeComponent {
       var to_airport = flight.calcDistance(Airport.position, position.last_position);
       flight.to_airport = "" + to_airport;
 
-      if (to_waypoint < 1) flight.color = "target"; // In target zone
+      if (to_waypoint < 2) flight.color = "target"; // In target zone
 
       if (to_airport > 10) return; // Out of bounds
 
