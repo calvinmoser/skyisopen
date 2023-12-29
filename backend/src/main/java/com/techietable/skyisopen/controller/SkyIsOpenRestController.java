@@ -89,11 +89,11 @@ public class SkyIsOpenRestController {
     List<Instant> timestamps = new ArrayList<>();
 
     @GetMapping("/flights/{id}/position")
-    public synchronized ResponseEntity<Flight> getFlightPosition(@PathVariable String id) {
+    public synchronized Flight getFlightPosition(@PathVariable String id) {
         timestamps.removeIf(t -> Duration.between(t, Instant.now()).toSeconds() > 60);
         if (timestamps.size() > 10) {
             System.out.println("< < < < < < < ERROR: Too many requests in past minute. > > > > > > > > > >");
-            return new ResponseEntity<Flight>(new Flight(), HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ERROR: Too many requests in past minute.");
         }
         timestamps.add(Instant.now());
 
@@ -101,7 +101,11 @@ public class SkyIsOpenRestController {
         String url = FLIGHT_URL + id + "/position";
 
         try {
-            return new RestTemplate().exchange(url, HttpMethod.GET, entity, Flight.class);
+            ResponseEntity<Flight> response = new RestTemplate().exchange(url, HttpMethod.GET, entity, Flight.class);
+            if (response.getBody() == null)
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ERROR: body missing in response. Status Code: " + response.getStatusCode());
+            Flight flight = response.getBody();
+            return flight;
         } catch (HttpClientErrorException e) {
             // Send response to frontend
             throw new ResponseStatusException(e.getStatusCode(), e.getMessage());
