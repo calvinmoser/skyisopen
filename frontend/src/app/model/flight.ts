@@ -57,9 +57,9 @@ export class Flight {
     fa_flight_id: "",
     groundspeed: 0,
     heading: -1,
-    latitude: 39.7868,
-    longitude: -86.18412,
-    timestamp: new Date(),
+    latitude: 0,
+    longitude: 0,
+    timestamp: new Date(0),
     update_type: ""
   }
   // extra
@@ -84,8 +84,14 @@ export class Flight {
       + " miles. and flying at "+ this.filed_airspeed + " knots.");
   }
 
+  calcDistance(from_position: Position, last_position: Position) {
+      var diffLat = 69 * (last_position.latitude - from_position.latitude);
+      var diffLong = 54.6 * (last_position.longitude - from_position.longitude);
+      return Math.sqrt( Math.pow(diffLat, 2) + Math.pow(diffLong, 2));
+  }
+
   writeMessage(message: String) {
-    console.log(this.operator + this.flight_number + ": " + message);
+      //return new Date(), this.operator + this.flight_number + ": Stage: " + Stage[this.stage] + ": " + message;
   }
 
 }

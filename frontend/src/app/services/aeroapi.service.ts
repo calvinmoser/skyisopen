@@ -19,4 +19,12 @@ export class AeroAPIService{
         map(flights => flights.map(flight => new Flight(flight)))
       );
   }
+  getFlightPosition(fa_flight_id: string): Promise<Flight | undefined> {
+    var flight_position_url = "http://localhost:8080/flights/" + fa_flight_id + "/position";
+    return this.httpClient.get<Flight>(flight_position_url)
+      .pipe(
+        map(last_position => new Flight(last_position))
+      ).toPromise();
+  }
+
 }

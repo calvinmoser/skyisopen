@@ -2,15 +2,24 @@
 @import "../../styles.scss";
 
 tr.mat-header-row {
-  font-weight: bold;
   font-size: 18px;
   color: mat.get-theme-color($theme, primary, lighter);
-  background-color: mat.get-theme-color($theme, primary, default);
+  background-color: mat.get-theme-color($theme, background, selected-button);
 }
 
 td {
    color: mat.get-theme-color($theme, primary, lighter);
 }
+
+.target {
+  font-weight: bold;
+  background-color: mat.get-theme-color($theme, primary, darker);
+}
+
+.mat-mdc-row:hover .mat-mdc-cell {
+   background-color: mat.get-theme-color($theme, background, hover);
+}
+
 
 .mat-column-type {
    width: 50px;

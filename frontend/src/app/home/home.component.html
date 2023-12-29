@@ -71,7 +71,7 @@
       </ng-container>
 
       <tr mat-header-row class="mat-header-row" *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-      <tr mat-row *matRowDef="let emprow; let flight; columns: displayedColumns" [style.background-color]="'' + flight.color"></tr>
+      <tr mat-row *matRowDef="let emprow; let flight; columns: displayedColumns" [class]="flight.color"></tr>
     </table>
   </mat-tab>
   <mat-tab>
@@ -90,9 +90,9 @@
   </mat-tab>
 </mat-tab-group>
 <div class="footer">
-  <table><tbody><tr>
+  <table style="table-layout:fixed; width:99%"><tbody><tr>
     <td></td>
-    <td><mat-checkbox class="checkbox" color="primary">Include Position Data</mat-checkbox></td>
-    <td class="primary-text">API Usage: {{ totalCalls }}</td>
+    <td style="text-align: center"><button mat-raised-button color="primary" (click)="identifyAircraft()">IDENTIFY</button></td>
+    <td class="primary-text" style="text-align: right">API Usage:{{ totalCalls }}</td>
   </tr></tbody></table>
 </div>
