@@ -1,8 +1,8 @@
 <div class="container">
-  <mat-tab-group style="margin: auto; width:1000px;" mat-stretch-tabs="false" mat-align-tabs="start">
+  <mat-tab-group class="containers" style="margin: auto; width:1000px;" mat-stretch-tabs="false" mat-align-tabs="start">
     <mat-tab>
-      <ng-template mat-tab-label>
-        <span class="primary-text mat-h1">Arrivals</span>
+      <ng-template mat-tab-label style="background-color:blue">
+        <span class="primary-text mat-h1" style="height: 40px; display:inline-flex; align-items:end">Arrivals</span>
       </ng-template>
 
       <table mat-table [dataSource]="dataSource">
@@ -51,7 +51,7 @@
             <td mat-cell *matCellDef="let flight">{{ flight.angle }}</td>
         </ng-container>
         <ng-container matColumnDef="to_airport">
-          <th mat-header-cell *matHeaderCellDef>to airport</th>
+          <th mat-header-cell *matHeaderCellDef>distance</th>
           <td mat-cell *matCellDef="let flight">{{ flight.to_airport | number: '0.2-2' }}</td>
         </ng-container>
         <ng-container matColumnDef="to_waypoint">
