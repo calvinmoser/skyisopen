@@ -19,6 +19,7 @@ $my-typography: mat.define-typography-config();
 
 .primary-header {
   color: mat.get-theme-color($theme, primary, default);
+  background-color: mat.get-theme-color($theme, primary, lighter);
 }
 
 .primary-text, .checkbox label {

@@ -2,13 +2,14 @@
 @import "../../styles.scss";
 
 mat-tab-group {
-  background-color: mat.get-theme-color($theme, primary, default);
+  background-color: mat.get-theme-color($theme, background, background);
 }
 
 tr.mat-header-row {
+  font-weight: bold;
   font-size: 18px;
   color: mat.get-theme-color($theme, primary, lighter);
-  background-color: mat.get-theme-color($theme, background, selected-button);
+  background-color: mat.get-theme-color($theme, primary, default);
 }
 
 td {
@@ -31,6 +32,8 @@ td {
 }
 
 .footer {
+  color: mat.get-theme-color($theme, primary, darker);
+  background-color: mat.get-theme-color($theme, primary, lighter);
   width: 100%;
   position: fixed;
   bottom: 0;
@@ -39,6 +42,7 @@ td {
 .container {
   background-color: mat.get-theme-color($theme, primary, default);
   background-image: url("../../assets/background.png");
+  background-size: 700px;
   position:absolute;
   width: 99%;
   top: 50px;
