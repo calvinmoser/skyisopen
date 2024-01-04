@@ -1,6 +1,10 @@
 @use '@angular/material' as mat;
 @import "../../styles.scss";
 
+mat-tab-group {
+  background-color: mat.get-theme-color($theme, primary, default);
+}
+
 tr.mat-header-row {
   font-size: 18px;
   color: mat.get-theme-color($theme, primary, lighter);
@@ -13,7 +17,8 @@ td {
 
 .target {
   font-weight: bold;
-  background-color: mat.get-theme-color($theme, primary, default);
+  background-color: mat.get-theme-color($theme, accent, default);
+  color: mat.get-theme-color($theme, accent, default-contrast);
 }
 
 .mat-mdc-row:hover .mat-mdc-cell {
@@ -32,6 +37,8 @@ td {
 }
 
 .container {
+  background-color: mat.get-theme-color($theme, primary, default);
+  background-image: url("../../assets/background.png");
   position:absolute;
   width: 99%;
   top: 50px;
