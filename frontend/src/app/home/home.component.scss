@@ -43,9 +43,19 @@ td {
   background-color: mat.get-theme-color($theme, primary, default);
   background-image: url("../../assets/background.png");
   background-size: 700px;
-  position:absolute;
   width: 99%;
+  position: absolute;
   top: 50px;
-  bottom: 50px;
+  bottom: 30px;
   overflow: auto;
+}
+
+mat-tab-group {
+  position: absolute;
+  top: 0px;
+  bottom: 10px;
+  overflow: auto;
+  left: 50%;
+  transform: translate(-50%, 0);
+  width:1000px;
 }
