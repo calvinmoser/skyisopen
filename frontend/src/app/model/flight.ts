@@ -79,7 +79,7 @@ export class Flight {
   }
 
   calcInitialDistance() {
-    this.to_airport = "" + this.route_distance * (100 - this.progress_percent) / 100;
+    this.to_airport = "~" + Math.round(this.route_distance * (100 - this.progress_percent) / 100);
     this.writeMessage(this.progress_percent + "% of " + this.route_distance + " miles is " + this.to_airport
       + " miles. and flying at "+ this.filed_airspeed + " knots.");
   }
@@ -87,7 +87,7 @@ export class Flight {
   calcDistance(from_position: Position, last_position: Position) {
       var diffLat = 69 * (last_position.latitude - from_position.latitude);
       var diffLong = 54.6 * (last_position.longitude - from_position.longitude);
-      return Math.sqrt( Math.pow(diffLat, 2) + Math.pow(diffLong, 2));
+      return Math.round(100 * (Math.sqrt( Math.pow(diffLat, 2) + Math.pow(diffLong, 2)))) / 100;
   }
 
   writeMessage(message: String) {
