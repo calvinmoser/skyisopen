@@ -63,8 +63,8 @@ export class Flight {
     update_type: ""
   }
   // extra
-  to_airport: string = "";
-  to_waypoint: string = "";
+  to_airport: number = 0;
+  to_waypoint: number = 0;
   estimated: string = "";
   updated: string = "";
   next_update: string = "";
@@ -79,7 +79,7 @@ export class Flight {
   }
 
   calcInitialDistance() {
-    this.to_airport = "~" + Math.round(this.route_distance * (100 - this.progress_percent) / 100);
+    this.to_airport = Math.round(this.route_distance * (100 - this.progress_percent) / 100);
     this.writeMessage(this.progress_percent + "% of " + this.route_distance + " miles is " + this.to_airport
       + " miles. and flying at "+ this.filed_airspeed + " knots.");
   }
