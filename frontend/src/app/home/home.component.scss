@@ -34,7 +34,7 @@ td {
 .footer {
   color: mat.get-theme-color($theme, primary, darker);
   background-color: mat.get-theme-color($theme, primary, lighter);
-  width: 100%;
+  width: 99.5%;
   position: fixed;
   bottom: 0;
 }
@@ -43,7 +43,7 @@ td {
   background-color: mat.get-theme-color($theme, primary, default);
   background-image: url("../../assets/background.png");
   background-size: 700px;
-  width: 100%;
+  width: 99.1%;
   position: absolute;
   top: 60px;
   bottom: 30px;
