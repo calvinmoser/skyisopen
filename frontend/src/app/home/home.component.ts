@@ -61,8 +61,9 @@ export class HomeComponent {
         this.flights = flights;
         this.dataSource.data = flights;
         var foundOne = false;
-        for (var i = 0; i < this.flights.length; i++) {
-          var flight = this.flights[i];
+        flights = flights.sort((a, b) => {return a.to_airport - b.to_airport});
+        for (var i = 0; i < flights.length; i++) {
+          var flight = flights[i];
           var position = await this.aeroAPIservice.getFlightPosition(flight.fa_flight_id);
 
           if (typeof position == "undefined" || position.last_position == null) continue;
