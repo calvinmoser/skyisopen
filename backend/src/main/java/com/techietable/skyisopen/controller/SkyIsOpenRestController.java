@@ -66,7 +66,7 @@ public class SkyIsOpenRestController {
 
     }
 
-    @GetMapping()
+    @GetMapping("/getAllFlights")
     public synchronized ResponseEntity<ScheduledArrivals> getAllFlights() {
         timestamps.removeIf(t -> Duration.between(t, Instant.now()).toSeconds() > 60);
         if (timestamps.size() >= 10) {
