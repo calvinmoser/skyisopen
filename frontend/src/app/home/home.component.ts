@@ -41,6 +41,8 @@ export class HomeComponent {
       .subscribe(flights => {
         for (var flight of flights) {
           flight.calcInitialDistance();
+          if (flight.operator == null) flight.operator = "???";
+          if (flight.aircraft_type == null) flight.aircraft_type = "???";
           if (this.aircraftTypes.has(flight.aircraft_type)) {
             var num = this.aircraftTypes.get(flight.aircraft_type);
             this.aircraftTypes.set(flight.aircraft_type, num! + 1);
