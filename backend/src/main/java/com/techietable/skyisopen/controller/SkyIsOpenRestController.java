@@ -30,7 +30,13 @@ public class SkyIsOpenRestController {
         entity = new HttpEntity<>("body", headers);
     }
 
+    @Deprecated
     @GetMapping("/scheduled_arrivals")
+    public synchronized ArrayList<Flight> getScheduledFlightsAero(@RequestParam(required = false) Integer maxPages) {
+        return this.getScheduledFlights(maxPages);
+    }
+
+    @GetMapping("/aero/scheduled_arrivals")
     public synchronized ArrayList<Flight> getScheduledFlights(@RequestParam(required = false) Integer maxPages) {
         timestamps.removeIf(t -> Duration.between(t, Instant.now()).toSeconds() > 60);
         if (timestamps.size() >= 10) {
@@ -66,29 +72,15 @@ public class SkyIsOpenRestController {
 
     }
 
-    @GetMapping("/getAllFlights")
-    public synchronized ResponseEntity<ScheduledArrivals> getAllFlights() {
-        timestamps.removeIf(t -> Duration.between(t, Instant.now()).toSeconds() > 60);
-        if (timestamps.size() >= 10) {
-            System.out.println("< < < < < < < ERROR: Too many requests in past minute. > > > > > > > > > >");
-            return new ResponseEntity<ScheduledArrivals>(new ScheduledArrivals(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        timestamps.add(Instant.now());
-
-        try {
-            ResponseEntity<ScheduledArrivals> response = new RestTemplate().exchange(ARRIVALS_URL, HttpMethod.GET, entity, ScheduledArrivals.class);
-            System.out.println("New data retrieved: < < < " + new Date() + "> > >");
-            return response;
-        } catch (HttpClientErrorException e) {
-            // Pass back the response with slick new Spring Boot feature
-            throw new ResponseStatusException(e.getStatusCode(), e.getMessage());
-        }
-
-    }
-
     List<Instant> timestamps = new ArrayList<>();
 
+    @Deprecated
     @GetMapping("/flights/{id}/position")
+    public synchronized Flight getFlightPositionAero(@PathVariable String id) {
+        return this.getFlightPosition(id);
+    }
+
+    @GetMapping("/aero/flights/{id}/position")
     public synchronized Flight getFlightPosition(@PathVariable String id) {
         timestamps.removeIf(t -> Duration.between(t, Instant.now()).toSeconds() > 60);
         if (timestamps.size() > 10) {
