@@ -17,6 +17,7 @@ import java.util.*;
 @RestController
 @CrossOrigin()
 @PropertySource("classpath:password.properties")
+@RequestMapping("/aero")
 public class SkyIsOpenRestController {
     private final HttpEntity<String> entity;
     final String ARRIVALS_URL = "https://aeroapi.flightaware.com/aeroapi/airports/IND/flights/scheduled_arrivals?max_pages={max_pages}";
@@ -30,13 +31,7 @@ public class SkyIsOpenRestController {
         entity = new HttpEntity<>("body", headers);
     }
 
-    @Deprecated
     @GetMapping("/scheduled_arrivals")
-    public synchronized ArrayList<Flight> getScheduledFlightsAero(@RequestParam(required = false) Integer maxPages) {
-        return this.getScheduledFlights(maxPages);
-    }
-
-    @GetMapping("/aero/scheduled_arrivals")
     public synchronized ArrayList<Flight> getScheduledFlights(@RequestParam(required = false) Integer maxPages) {
         timestamps.removeIf(t -> Duration.between(t, Instant.now()).toSeconds() > 60);
         if (timestamps.size() >= 10) {
@@ -74,13 +69,7 @@ public class SkyIsOpenRestController {
 
     List<Instant> timestamps = new ArrayList<>();
 
-    @Deprecated
     @GetMapping("/flights/{id}/position")
-    public synchronized Flight getFlightPositionAero(@PathVariable String id) {
-        return this.getFlightPosition(id);
-    }
-
-    @GetMapping("/aero/flights/{id}/position")
     public synchronized Flight getFlightPosition(@PathVariable String id) {
         timestamps.removeIf(t -> Duration.between(t, Instant.now()).toSeconds() > 60);
         if (timestamps.size() > 10) {
