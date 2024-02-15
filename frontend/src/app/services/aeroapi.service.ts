@@ -11,18 +11,17 @@ export class AeroAPIService{
 
   constructor(private httpClient: HttpClient) {}
 
-  readonly scheduled_arrivals_url = "http://localhost:8080/scheduled_arrivals";
 
   getScheduledArrivals(maxPages: number): Observable<Flight[]> {
     const options = maxPages ? { params: new HttpParams().set('maxPages', maxPages) } : {};
-    return this.httpClient.get<Flight[]>(this.scheduled_arrivals_url, options)
+    return this.httpClient.get<Flight[]>("/scheduled_arrivals", options)
       .pipe(
         map(flights => flights.map(flight => new Flight(flight)))
       );
   }
 
   getFlightPosition(fa_flight_id: string): Promise<Flight | undefined> {
-    var flight_position_url = "http://localhost:8080/flights/" + fa_flight_id + "/position";
+    var flight_position_url = "/flights/" + fa_flight_id + "/position";
     return this.httpClient.get<Flight>(flight_position_url)
       .pipe(
         map(last_position => new Flight(last_position))
