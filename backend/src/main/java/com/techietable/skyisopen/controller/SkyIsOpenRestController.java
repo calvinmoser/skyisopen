@@ -15,7 +15,6 @@ import java.time.Instant;
 import java.util.*;
 
 @RestController
-@CrossOrigin()
 @PropertySource("classpath:password.properties")
 @RequestMapping("/aero")
 public class SkyIsOpenRestController {
