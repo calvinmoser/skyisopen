@@ -11,13 +11,9 @@ export class AeroAPIService{
 
   constructor(private httpClient: HttpClient) {}
 
-  readonly headers = new HttpHeaders({
-          authorization : 'Basic ' + btoa("user" + ':' + "password")
-      });
-
   getScheduledArrivals(maxPages: number): Observable<Flight[]> {
     const params = maxPages ? new HttpParams().set('maxPages', maxPages) : {};
-    const options = { params: params, headers: this.headers };
+    const options = { params: params };
 
     return this.httpClient.get<Flight[]>("/aero/scheduled_arrivals", options)
       .pipe(
@@ -26,10 +22,9 @@ export class AeroAPIService{
   }
 
   getFlightPosition(fa_flight_id: string): Promise<Flight | undefined> {
-    const options = { headers: this.headers };
     var flight_position_url = "/aero/flights/" + fa_flight_id + "/position";
 
-    return this.httpClient.get<Flight>(flight_position_url, options)
+    return this.httpClient.get<Flight>(flight_position_url)
       .pipe(
         map(last_position => new Flight(last_position))
       ).toPromise();
