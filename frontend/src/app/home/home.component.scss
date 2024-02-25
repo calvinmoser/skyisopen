@@ -22,10 +22,13 @@ td {
   color: mat.get-theme-color($theme, accent, default-contrast);
 }
 
+.track {
+  background-color: mat.get-theme-color($theme, background, focused-button);
+}
+
 .mat-mdc-row:hover .mat-mdc-cell {
    background-color: mat.get-theme-color($theme, background, hover);
 }
-
 
 .mat-column-type {
    width: 50px;

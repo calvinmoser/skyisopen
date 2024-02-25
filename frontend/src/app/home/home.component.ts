@@ -30,10 +30,12 @@ export class HomeComponent {
   typeDataSource = new MatTableDataSource<[String, number]>([]);
   flights: Flight[] = [];
 
+  bigPlanes: string[] = ["A34", "A35", "A36", "A38", "B74", "B77", "B78"];
+
   constructor(private aeroAPIservice: AeroAPIService) {}
 
   ngOnInit(): void {
-    this.getScheduledArrivals(2);
+    this.getScheduledArrivals(4);
   }
 
   getScheduledArrivals(maxPages: number) {
@@ -41,13 +43,21 @@ export class HomeComponent {
       .subscribe(flights => {
         for (var flight of flights) {
           flight.calcInitialDistance();
+
           if (flight.operator == null) flight.operator = "???";
           if (flight.aircraft_type == null) flight.aircraft_type = "???";
+
           if (this.aircraftTypes.has(flight.aircraft_type)) {
             var num = this.aircraftTypes.get(flight.aircraft_type);
             this.aircraftTypes.set(flight.aircraft_type, num! + 1);
           } else
             this.aircraftTypes.set(flight.aircraft_type, 1)
+
+          for (var type of this.bigPlanes) {
+            if (flight.aircraft_type.startsWith(type)) {
+              flight.color = "track";
+            }
+          }
         }
         this.flights = flights;
         this.dataSource.data = flights;
@@ -56,8 +66,7 @@ export class HomeComponent {
   }
 
   identifyAircraft(){
-
-    this.aeroAPIservice.getScheduledArrivals(1)
+    this.aeroAPIservice.getScheduledArrivals(4)
       .subscribe(async flights => {
         flights.map(f => {f.calcInitialDistance()});
         this.flights = flights;
