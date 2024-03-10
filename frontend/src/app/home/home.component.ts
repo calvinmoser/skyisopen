@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatGridListModule } from '@angular/material/grid-list';
 import { AeroAPIService } from '../services/aeroapi.service';
 import { Flight, Position } from '../model/flight';
 import { Airport } from '../model/airport';
@@ -13,7 +14,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MatButtonModule, MatTableModule, CommonModule, MatTabsModule, ],
+  imports: [MatButtonModule, MatTableModule, CommonModule, MatTabsModule, MatGridListModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
