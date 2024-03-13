@@ -23,6 +23,7 @@ export class HomeComponent {
 
   dataSource = new MatTableDataSource<Flight>([]);
   flightMap: Map <String, Flight> = new Map<String, Flight>();
+  numPages = 1;
   totalCalls: number = 0;
   displayedColumns: string[] = [ /*"fa_flight_id",*/ "flight", "aircraft_type", /*"scheduled_on",*/ "origin", /*"groundspeed",*/
     /*"altitude", "angle",*/ "to_airport", /*"to_waypoint", "estimated", "next_update", "updated", "remove"*/ "estimated_on"];
@@ -36,7 +37,10 @@ export class HomeComponent {
   constructor(private aeroAPIservice: AeroAPIService) {}
 
   ngOnInit(): void {
-    this.getScheduledArrivals(4);
+    if (window.innerWidth > window.innerHeight && window.innerWidth >- 1024) {
+      this.numPages = 4;
+    }
+    this.getScheduledArrivals(this.numPages);
   }
 
   getScheduledArrivals(maxPages: number) {
