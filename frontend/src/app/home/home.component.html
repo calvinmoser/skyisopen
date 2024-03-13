@@ -10,7 +10,7 @@
         <td mat-cell *matCellDef="let flight;" style="font-weight: bold">{{ flight.operator }}{{flight.flight_number}}</td>
       </ng-container>
       <ng-container matColumnDef="aircraft_type">
-        <th mat-header-cell *matHeaderCellDef>type</th>
+        <th mat-header-cell *matHeaderCellDef>aircraft</th>
         <td mat-cell *matCellDef="let flight">{{ flight.aircraft_type }}</td>
       </ng-container>
       <ng-container matColumnDef="fa_flight_id">
@@ -23,7 +23,7 @@
       </ng-container>
       <ng-container matColumnDef="estimated_on">
         <th mat-header-cell *matHeaderCellDef>estimated</th>
-        <td mat-cell *matCellDef="let flight">{{ flight.estimated_on | date: "short" }}</td>
+        <td mat-cell *matCellDef="let flight">{{ flight.estimated_on | date: "shortTime" }}</td>
       </ng-container>
       <ng-container matColumnDef="origin">
         <th mat-header-cell *matHeaderCellDef>origin</th>
@@ -50,7 +50,7 @@
           <td mat-cell *matCellDef="let flight">{{ flight.angle }}</td>
       </ng-container>
       <ng-container matColumnDef="to_airport">
-        <th mat-header-cell *matHeaderCellDef>distance (mi)</th>
+        <th mat-header-cell *matHeaderCellDef>miles</th>
         <td mat-cell *matCellDef="let flight">{{ flight.to_airport }}</td>
       </ng-container>
       <ng-container matColumnDef="to_waypoint">

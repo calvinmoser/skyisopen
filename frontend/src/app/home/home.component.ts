@@ -24,8 +24,8 @@ export class HomeComponent {
   dataSource = new MatTableDataSource<Flight>([]);
   flightMap: Map <String, Flight> = new Map<String, Flight>();
   totalCalls: number = 0;
-  displayedColumns: string[] = [ /*"fa_flight_id",*/ "flight", "aircraft_type", "estimated_on", "origin", /*"groundspeed",*/
-    /*"altitude", "angle",*/ "to_airport", /*"to_waypoint", "estimated", "next_update", "updated", "remove"*/ ];
+  displayedColumns: string[] = [ /*"fa_flight_id",*/ "flight", "aircraft_type", /*"scheduled_on",*/ "origin", /*"groundspeed",*/
+    /*"altitude", "angle",*/ "to_airport", /*"to_waypoint", "estimated", "next_update", "updated", "remove"*/ "estimated_on"];
 
   aircraftTypes: Map <String, number> = new Map<String, number>();
   typeDataSource = new MatTableDataSource<[String, number]>([]);
