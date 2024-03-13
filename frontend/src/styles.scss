@@ -25,3 +25,9 @@ $my-typography: mat.define-typography-config();
 .primary-text, .checkbox label {
   color: mat.get-theme-color($theme, primary, lighter);
 }
+
+.background {
+  background-color: mat.get-theme-color($theme, primary, default);
+  background-image: url("assets/background.png");
+  background-size: 700px;
+}
