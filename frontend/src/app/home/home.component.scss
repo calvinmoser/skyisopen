@@ -1,10 +1,24 @@
 @use '@angular/material' as mat;
 @import "../../styles.scss";
 
-mat-tab-group {
+mat-toolbar {
+  background-color: mat.get-theme-color($theme, primary, lighter);
+  color: mat.get-theme-color($theme, primary, default);
+}
+
+.spacer {
+  width: 16px;
+}
+
+.sec-toolbar {
+  background-color: mat.get-theme-color($theme, background, background);
+  color: mat.get-theme-color($theme, primary, lighter);
+}
+
+.mat-table {
   background-color: mat.get-theme-color($theme, background, background);
   position: absolute;
-  top: 65px;
+  top: 83px;
   bottom: 47px;
   overflow: auto;
   left: 50%;
@@ -15,8 +29,8 @@ mat-tab-group {
 tr.mat-header-row {
   font-weight: bold;
   font-size: 18px;
-  color: mat.get-theme-color($theme, primary, lighter);
   background-color: mat.get-theme-color($theme, primary, default);
+  color: mat.get-theme-color($theme, primary, lighter);
 }
 
 td {

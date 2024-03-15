@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { AeroAPIService } from '../services/aeroapi.service';
@@ -13,13 +14,14 @@ import { MatTabsModule } from '@angular/material/tabs';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MatButtonModule, MatTableModule, CommonModule, MatTabsModule],
+  imports: [MatToolbarModule, MatButtonModule, MatTableModule, CommonModule, MatTabsModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
 
 export class HomeComponent {
 
+  title: string = "Indianapolis International Airport";
   dataSource = new MatTableDataSource<Flight>([]);
   flightMap: Map <String, Flight> = new Map<String, Flight>();
   numPages = 1;
@@ -36,6 +38,11 @@ export class HomeComponent {
   constructor(private aeroAPIservice: AeroAPIService) {}
 
   ngOnInit(): void {
+    if (window.innerWidth < 365) {
+      this.title = "Indianapolis"
+    } else if (window.innerWidth < 440) {
+      this.title = "Indianapolis International"
+    }
     if (window.innerWidth > window.innerHeight && window.innerWidth >- 1024) {
       this.numPages = 4;
     }

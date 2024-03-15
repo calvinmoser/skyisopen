@@ -24,16 +24,8 @@ $theme: mat.define-dark-theme((
 @include mat.button-theme($theme);
 @include mat.checkbox-theme($theme);
 @include mat.table-theme($theme);
-
-
-.primary-header {
-  color: mat.get-theme-color($theme, primary, default);
-  background-color: mat.get-theme-color($theme, primary, lighter);
-}
-
-.primary-text, .checkbox label {
-  color: mat.get-theme-color($theme, primary, lighter);
-}
+@include mat.toolbar-theme($theme);
+@include mat.tabs-theme($theme);
 
 .background {
   background-color: mat.get-theme-color($theme, primary, default);
