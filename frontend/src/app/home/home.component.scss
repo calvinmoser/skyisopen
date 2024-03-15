@@ -3,6 +3,13 @@
 
 mat-tab-group {
   background-color: mat.get-theme-color($theme, background, background);
+  position: absolute;
+  top: 65px;
+  bottom: 47px;
+  overflow: auto;
+  left: 50%;
+  transform: translate(-50%, 0);
+  width:1024px;
 }
 
 tr.mat-header-row {
@@ -35,22 +42,11 @@ td {
 }
 
 .footer {
-  color: mat.get-theme-color($theme, primary, darker);
-  background-color: mat.get-theme-color($theme, primary, lighter);
   position: fixed;
-  bottom: 0;
-  left: 8px;
-  right: 8px;
-}
-
-mat-tab-group {
-  position: absolute;
-  top: 65px;
-  bottom: 47px;
-  overflow: auto;
-  left: 50%;
-  transform: translate(-50%, 0);
-  width:1024px;
+  bottom: 4px;
+  width: 30%;
+  margin-left: 35%;
+  margin-right: 35%;
 }
 
 /* Just fill up screen if max-width <= 1024 */

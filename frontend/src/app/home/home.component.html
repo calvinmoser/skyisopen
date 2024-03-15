@@ -89,10 +89,6 @@
     </table>
   </mat-tab>
 </mat-tab-group>
-<mat-grid-list class="footer" cols="3" rowHeight="40px">
-  <mat-grid-tile class="center-left"/>
-  <mat-grid-tile class="center-center" style="width:500px; min-width: 60px">
-    <button mat-raised-button color="primary" style="width:500px" (click)="identifyAircraft()">IDENTIFY</button>
-  </mat-grid-tile>
-  <mat-grid-tile class="center-right"><div style="width:100%; text-align:right;">API Usage:{{ totalCalls }}</div></mat-grid-tile>
-</mat-grid-list>
+<div class="footer">
+  <button mat-raised-button color="primary" style="width:100%" (click)="identifyAircraft()">IDENTIFY</button>
+</div>
