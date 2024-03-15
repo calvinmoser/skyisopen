@@ -11,8 +11,9 @@ mat-toolbar {
 }
 
 .sec-toolbar {
-  background-color: mat.get-theme-color($theme, background, background);
+  background-color: mat.get-theme-color($theme, primary, default);
   color: mat.get-theme-color($theme, primary, lighter);
+  justify-content: center;
 }
 
 .mat-table {
@@ -29,8 +30,7 @@ mat-toolbar {
 tr.mat-header-row {
   font-weight: bold;
   font-size: 18px;
-  background-color: mat.get-theme-color($theme, primary, default);
-  color: mat.get-theme-color($theme, primary, lighter);
+  color: mat.get-theme-color($theme, primary, 200);
 }
 
 td {
