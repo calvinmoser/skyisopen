@@ -2,12 +2,13 @@
 @import "../../styles.scss";
 
 mat-toolbar.header {
-   background-color: mat.get-theme-color($theme, primary, 700);
-   position: relative;
-   z-index: 10;
-   width:100vw;
-   height:60px;
-   transform: translate(-8px, -8px);
+  background-color: mat.get-theme-color($theme, primary, lighter);
+  color: mat.get-theme-color($theme, primary, default);
+  position: relative;
+  z-index: 10;
+  width:100vw;
+  height:60px;
+  transform: translate(-8px, -8px);
 }
 
 .spacer {
@@ -15,31 +16,53 @@ mat-toolbar.header {
 }
 
 .sec-toolbar {
+  background-color: mat.get-theme-color($theme, primary, 600);
   position: absolute;
   z-index: 0;
+  display: flex;
   justify-content: center;
-  width: 1024px;
+  line-height: 50px;
+  text-align: bottom;
+  width: 100px;
   height: 50px;
-  top: 60px;
+  top: 65px;
   left: 50%;
   transform: translate(-50%, 0);
-  font-size: 1.2em;
-  background-color: rgba(0, 0, 0, .5);
+}
+.middle-fill {
+  height: 20px;
+  width: 200px;
+  transform: translate(-50%, 30px);
+}
+
+.left-angle {
+  height: 50px;
+  width: 100px;
+  transform: translate(-50%, 0)
+      skewX(-70deg)
+      translate(-70px, 0);
+}
+.right-angle {
+  height: 50px;
+  width: 100px;
+  transform: translate(-50%, 0)
+      skewX(70deg)
+      translate(70px, 0);
 }
 
 .tt {
   position: relative;
-   z-index: 0;
+  z-index: 5;
 }
 
 .mat-mdc-raised-button.identify {
   background-color: mat.get-theme-color($theme, primary, 600);
-  }
+}
 
 .container {
   z-index:5;
   position: absolute;
-  top: 110px;
+  top: 115px;
   bottom: 47px;
   overflow: auto;
   left: 50%;
@@ -48,25 +71,25 @@ mat-toolbar.header {
 }
 
 tr.mat-header-row {
-   background-color: mat.get-theme-color($theme, primary, A100);
-   color: mat.get-theme-color($theme, primary, 900);
-   position: relative;
-    z-index: 0;
+  background-color: mat.get-theme-color($theme, primary, default);
+  color: mat.get-theme-color($theme, primary, lighter);
+  position: relative;
+  z-index: 5;
 }
 
 td {
-   color: mat.get-theme-color($theme, primary, lighter);
+  color: mat.get-theme-color($theme, primary, lighter);
 }
 
 .target {
   font-weight: bold;
-  background-color: mat.get-theme-color($theme, accent, default);
-  color: mat.get-theme-color($theme, accent, default-contrast);
+  background-color: mat.get-theme-color($theme, primary, A100);
+  color: mat.get-theme-color($theme, primary, A100-contrast);
 }
 
 .track {
   position: relative;
-  z-index:10;
+  z-index:4;
   box-shadow: 0px 1px 2px mat.get-theme-color($theme, primary, default);
 }
 
@@ -91,12 +114,5 @@ td {
 @media only screen and (max-width: 1024px) {
   .container {
     width: 100vw;
-  }
-
-  .sec-toolbar {
-    width: 100vw;
-     left: 0px;
-     right: 0px;
-     transform: translate(0, 0);
   }
 }

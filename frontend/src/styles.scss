@@ -30,5 +30,5 @@ $theme: mat.define-dark-theme((
 .background {
   background-color: mat.get-theme-color($theme, primary, default);
   background-image: url("assets/background.png");
-  background-size: 30%;
+  background-size: 60%;
 }
