@@ -6,7 +6,8 @@ mat-toolbar.header {
    position: relative;
    z-index: 10;
    width:100vw;
-   transform: translate(-8px, 0);
+   height:60px;
+   transform: translate(-8px, -8px);
 }
 
 .spacer {
@@ -16,11 +17,14 @@ mat-toolbar.header {
 .sec-toolbar {
   position: absolute;
   z-index: 0;
-  background-color: mat.get-theme-color($theme, primary, default);
   justify-content: center;
-   width: 1024px;
+  width: 1024px;
+  height: 50px;
+  top: 60px;
   left: 50%;
   transform: translate(-50%, 0);
+  font-size: 1.2em;
+  background-color: rgba(0, 0, 0, .5);
 }
 
 .tt {
@@ -35,7 +39,7 @@ mat-toolbar.header {
 .container {
   z-index:5;
   position: absolute;
-  top: 140px;
+  top: 110px;
   bottom: 47px;
   overflow: auto;
   left: 50%;
@@ -88,19 +92,11 @@ td {
   .container {
     width: 100vw;
   }
-}
-/* Move because headers have smaller height for narrow screen */
-@media only screen and (max-width: 600px) {
-  .container {
-    top: 120px;
-  }
-}
-/* Looks better if sec-header has margins */
-@media only screen and (max-width: 1032px) {
+
   .sec-toolbar {
-    width: auto;
-    left: 4px;
-    right: 4px;
-    transform: translate(0, 0);
+    width: 100vw;
+     left: 0px;
+     right: 0px;
+     transform: translate(0, 0);
   }
 }
