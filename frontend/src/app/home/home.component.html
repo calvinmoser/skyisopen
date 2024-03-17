@@ -3,9 +3,12 @@
   <span class="spacer"></span>
   <span style="text-overflow: ellipsis; white-space: nowrap;overflow: hidden;" >{{ title }}</span>
 </mat-toolbar>
-<mat-toolbar class="sec-toolbar mat-elevation-z8">
+<div class="sec-toolbar left-angle"></div>
+<div class="sec-toolbar right-angle"></div>
+<div class="sec-toolbar middle-fill"></div>
+<div class="sec-toolbar mat-h2">
   Arrivals
-</mat-toolbar>
+</div>
 <div class="container mat-elevation-z8">
   <table mat-table class="tt mat-elevation-z8" [dataSource]="dataSource">
     <ng-container matColumnDef="flight">
