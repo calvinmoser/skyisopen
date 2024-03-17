@@ -16,7 +16,7 @@ import { MatTabsModule } from '@angular/material/tabs';
   standalone: true,
   imports: [MatToolbarModule, MatButtonModule, MatTableModule, CommonModule, MatTabsModule],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.scss'
+  styleUrls: ['./home.component.scss', '../animations/home.animations.scss']
 })
 
 export class HomeComponent {
