@@ -35,6 +35,9 @@ export class HomeComponent {
 
   bigPlanes: string[] = ["A34", "A35", "A36", "A38", "B74", "B77", "B78"];
 
+  easterEgg: boolean = false;
+  easterEggCount: number = 0;
+
   constructor(private aeroAPIservice: AeroAPIService) {}
 
   ngOnInit(): void {
@@ -110,5 +113,14 @@ export class HomeComponent {
   }
 
   removeFlight(flight: Flight) {};
+
+  easterEggHunt() {
+    console.log(this.easterEggCount);
+    this.easterEggCount++;
+    if (this.easterEggCount >= 7) {
+      this.easterEgg = !this.easterEgg;
+      this.easterEggCount = 0;
+    }
+  }
 
 }
