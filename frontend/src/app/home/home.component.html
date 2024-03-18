@@ -1,4 +1,4 @@
-<mat-toolbar class="header mat-elevation-z8">
+<mat-toolbar class="header mat-elevation-z8" [class.header-animations]="easterEgg">
   <img src="/assets/logo.png" alt="logo" aria-hidden="true" />
   <span class="spacer"></span>
   <span style="text-overflow: ellipsis; white-space: nowrap;overflow: hidden;" >{{ title }}</span>
@@ -6,10 +6,10 @@
 <div class="sec-toolbar left-angle"></div>
 <div class="sec-toolbar right-angle"></div>
 <div class="sec-toolbar middle-fill"></div>
-<div class="sec-toolbar mat-h2">
+<div class="sec-toolbar mat-h2" (click)="easterEggHunt()">
   Arrivals
 </div>
-<div class="container mat-elevation-z8">
+<div class="container mat-elevation-z8" [class.container-animations]="easterEgg">
   <table mat-table class="tt mat-elevation-z8" [dataSource]="dataSource">
     <ng-container matColumnDef="flight">
       <th mat-header-cell *matHeaderCellDef>flight</th>
@@ -80,6 +80,6 @@
     <tr mat-row *matRowDef="let emprow; let flight; columns: displayedColumns" class="mat-elevation-z1" [class]="flight.color"></tr>
   </table>
 </div>
-<div class="footer mat-elevation-z8">
+<div class="footer mat-elevation-z8" [class.footer-animations]="easterEgg">
   <button mat-raised-button class="identify mat-elevation-z8" style="width:100%" (click)="identifyAircraft()">IDENTIFY</button>
 </div>
