@@ -32,23 +32,23 @@ public class AeroAPIDao {
         entity = new HttpEntity<>("body", headers);
     }
 
-    // TODO: Return available number of pages
     public UUID requestRequestId(Integer numPages) {
         timestamps.entrySet().removeIf(t -> Duration.between(t.getKey(), Instant.now()).toSeconds() > 60);
-        int pagesRequested = timestamps.values().stream().reduce(0, Integer::sum);
-        System.out.println(new Date() + " (Pages requested in last minute: " + pagesRequested + ")");
-        if (pagesRequested > 10) {
+        int pagesRetrieved = timestamps.values().stream().reduce(0, Integer::sum);
+        System.out.println(new Date() + " (Pages requested in last minute: " + pagesRetrieved + ")");
+        if (pagesRetrieved + numPages > 10) {
             System.out.println(new Date() + " Too many requests in past minute.");
             // TODO: Wait instead of throwing exception
             throw new RequestLimitException("Too many requests in past minute.");
         }
-        // TODO: The number of pages should come from API response
-        timestamps.put(Instant.now(), numPages);
         UUID requestId = UUID.randomUUID();
         validRequests.add(requestId);
         return requestId;
     }
 
+    private void addPages(int numPages) {
+        timestamps.put(Instant.now(), numPages);
+    }
 
     public ArrayList<Flight> scheduledArrivals(UUID requestId, Map<String, Object> params) {
         if (!validRequests.contains(requestId)) {
@@ -69,6 +69,8 @@ public class AeroAPIDao {
             if (response.getBody() == null)
                 // TODO: This type of exception should not be thrown in dao
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ERROR: body missing in response. Status Code: " + response.getStatusCode());
+
+            addPages(response.getBody().num_pages);
 
             return response.getBody().scheduled_arrivals;
         } catch (HttpClientErrorException e) {
@@ -93,6 +95,8 @@ public class AeroAPIDao {
 
             if (response.getBody() == null)
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ERROR: body missing in response. Status Code: " + response.getStatusCode());
+
+            addPages(1);
 
             return response.getBody();
         } catch (HttpClientErrorException e) {
