@@ -16,7 +16,7 @@ import { MatTabsModule } from '@angular/material/tabs';
   standalone: true,
   imports: [MatToolbarModule, MatButtonModule, MatTableModule, CommonModule, MatTabsModule],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.scss'
+  styleUrls: ['./home.component.scss', '../animations/home.animations.scss']
 })
 
 export class HomeComponent {
@@ -34,6 +34,9 @@ export class HomeComponent {
   flights: Flight[] = [];
 
   bigPlanes: string[] = ["A34", "A35", "A36", "A38", "B74", "B77", "B78"];
+
+  easterEgg: boolean = false;
+  easterEggCount: number = 0;
 
   constructor(private aeroAPIservice: AeroAPIService) {}
 
@@ -110,5 +113,14 @@ export class HomeComponent {
   }
 
   removeFlight(flight: Flight) {};
+
+  easterEggHunt() {
+    console.log(this.easterEggCount);
+    this.easterEggCount++;
+    if (this.easterEggCount >= 7) {
+      this.easterEgg = !this.easterEgg;
+      this.easterEggCount = 0;
+    }
+  }
 
 }
