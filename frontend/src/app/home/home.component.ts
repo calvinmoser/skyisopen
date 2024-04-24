@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { AeroAPIService } from '../services/aeroapi.service';
@@ -13,27 +14,42 @@ import { MatTabsModule } from '@angular/material/tabs';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MatButtonModule, MatTableModule, CommonModule, MatTabsModule, ],
+  imports: [MatToolbarModule, MatButtonModule, MatTableModule, CommonModule, MatTabsModule],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.scss'
+  styleUrls: ['./home.component.scss', '../animations/home.animations.scss']
 })
 
 export class HomeComponent {
 
+  title: string = "Indianapolis International Airport";
   dataSource = new MatTableDataSource<Flight>([]);
   flightMap: Map <String, Flight> = new Map<String, Flight>();
+  numPages = 1;
   totalCalls: number = 0;
-  displayedColumns: string[] = [ /*"fa_flight_id",*/ "flight", "aircraft_type", "estimated_on", "origin", /*"groundspeed",*/
-    /*"altitude", "angle",*/ "to_airport", /*"to_waypoint", "estimated", "next_update", "updated", "remove"*/ ];
+  displayedColumns: string[] = [ /*"fa_flight_id",*/ "flight", "aircraft_type", /*"scheduled_on",*/ "origin", /*"groundspeed",*/
+    /*"altitude", "angle",*/ "to_airport", /*"to_waypoint", "estimated", "next_update", "updated", "remove"*/ "estimated_on"];
 
   aircraftTypes: Map <String, number> = new Map<String, number>();
   typeDataSource = new MatTableDataSource<[String, number]>([]);
   flights: Flight[] = [];
 
+  bigPlanes: string[] = ["A34", "A35", "A36", "A38", "B74", "B77", "B78"];
+
+  easterEgg: boolean = false;
+  easterEggCount: number = 0;
+
   constructor(private aeroAPIservice: AeroAPIService) {}
 
   ngOnInit(): void {
-    this.getScheduledArrivals(2);
+    if (window.innerWidth < 365) {
+      this.title = "Indianapolis"
+    } else if (window.innerWidth < 440) {
+      this.title = "Indianapolis International"
+    }
+    if (window.innerWidth > window.innerHeight && window.innerWidth >- 1024) {
+      this.numPages = 4;
+    }
+    this.getScheduledArrivals(this.numPages);
   }
 
   getScheduledArrivals(maxPages: number) {
@@ -41,13 +57,21 @@ export class HomeComponent {
       .subscribe(flights => {
         for (var flight of flights) {
           flight.calcInitialDistance();
+
           if (flight.operator == null) flight.operator = "???";
           if (flight.aircraft_type == null) flight.aircraft_type = "???";
+
           if (this.aircraftTypes.has(flight.aircraft_type)) {
             var num = this.aircraftTypes.get(flight.aircraft_type);
             this.aircraftTypes.set(flight.aircraft_type, num! + 1);
           } else
             this.aircraftTypes.set(flight.aircraft_type, 1)
+
+          for (var type of this.bigPlanes) {
+            if (flight.aircraft_type.startsWith(type)) {
+              flight.color = "track";
+            }
+          }
         }
         this.flights = flights;
         this.dataSource.data = flights;
@@ -56,8 +80,7 @@ export class HomeComponent {
   }
 
   identifyAircraft(){
-
-    this.aeroAPIservice.getScheduledArrivals(1)
+    this.aeroAPIservice.getScheduledArrivals(4)
       .subscribe(async flights => {
         flights.map(f => {f.calcInitialDistance()});
         this.flights = flights;
@@ -90,5 +113,14 @@ export class HomeComponent {
   }
 
   removeFlight(flight: Flight) {};
+
+  easterEggHunt() {
+    console.log(this.easterEggCount);
+    this.easterEggCount++;
+    if (this.easterEggCount >= 7) {
+      this.easterEgg = !this.easterEgg;
+      this.easterEggCount = 0;
+    }
+  }
 
 }

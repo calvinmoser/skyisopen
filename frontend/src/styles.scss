@@ -5,23 +5,30 @@
 $primary: mat.define-palette(mat.$deep-purple-palette);
 $accent:  mat.define-palette(mat.$green-palette);
 $warn:    mat.define-palette(mat.$red-palette);
-$theme: mat.define-dark-theme($primary, $accent, $warn);
+$typography: mat.define-typography-config();
+$theme: mat.define-dark-theme((
+ color: (
+   primary: $primary,
+   accent: $accent,
+   warn: $warn,
+ ),
+ typography: $typography,
+ density: 0,
+));
+
+// Apply material typography to non-material components like headers, text, etc
+@include mat.typography-hierarchy($typography);
 
 //@include mat.all-component-themes($theme);
 @include mat.core-theme($theme);
 @include mat.button-theme($theme);
 @include mat.checkbox-theme($theme);
 @include mat.table-theme($theme);
+@include mat.toolbar-theme($theme);
+@include mat.tabs-theme($theme);
 
-// This is for applying material typography to non-material components like headers, text, etc
-$my-typography: mat.define-typography-config();
-@include mat.typography-hierarchy($my-typography);
-
-.primary-header {
-  color: mat.get-theme-color($theme, primary, default);
-  background-color: mat.get-theme-color($theme, primary, lighter);
-}
-
-.primary-text, .checkbox label {
-  color: mat.get-theme-color($theme, primary, lighter);
+.background {
+  background-color: mat.get-theme-color($theme, primary, default);
+  background-image: url("assets/background.png");
+  background-size: 60%;
 }

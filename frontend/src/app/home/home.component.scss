@@ -1,61 +1,118 @@
 @use '@angular/material' as mat;
 @import "../../styles.scss";
 
-mat-tab-group {
-  background-color: mat.get-theme-color($theme, background, background);
+mat-toolbar.header {
+  background-color: mat.get-theme-color($theme, primary, lighter);
+  color: mat.get-theme-color($theme, primary, default);
+  position: relative;
+  z-index: 10;
+  width:100vw;
+  height:60px;
+  transform: translate(-8px, -8px);
+}
+
+.spacer {
+  width: 16px;
+}
+
+.sec-toolbar {
+  background-color: mat.get-theme-color($theme, primary, 600);
+  position: absolute;
+  z-index: 0;
+  display: flex;
+  justify-content: center;
+  line-height: 50px;
+  text-align: bottom;
+  width: 100px;
+  height: 50px;
+  top: 65px;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+.middle-fill {
+  height: 20px;
+  width: 200px;
+  transform: translate(-50%, 30px);
+}
+
+.left-angle {
+  height: 50px;
+  width: 100px;
+  transform: translate(-50%, 0)
+      skewX(-70deg)
+      translate(-70px, 0);
+}
+.right-angle {
+  height: 50px;
+  width: 100px;
+  transform: translate(-50%, 0)
+      skewX(70deg)
+      translate(70px, 0);
+}
+
+.tt {
+  position: relative;
+  z-index: 5;
+}
+
+.mat-mdc-raised-button.identify {
+  background-color: mat.get-theme-color($theme, primary, 600);
+}
+
+.container {
+  z-index:5;
+  position: absolute;
+  top: 115px;
+  bottom: 47px;
+  overflow: auto;
+  left: 50%;
+  transform: translate(-50%, 0);
+  width:1024px;
 }
 
 tr.mat-header-row {
-  font-weight: bold;
-  font-size: 18px;
-  color: mat.get-theme-color($theme, primary, lighter);
   background-color: mat.get-theme-color($theme, primary, default);
+  color: mat.get-theme-color($theme, primary, lighter);
+  position: relative;
+  z-index: 5;
 }
 
 td {
-   color: mat.get-theme-color($theme, primary, lighter);
+  color: mat.get-theme-color($theme, primary, lighter);
 }
 
 .target {
   font-weight: bold;
-  background-color: mat.get-theme-color($theme, accent, default);
-  color: mat.get-theme-color($theme, accent, default-contrast);
+  background-color: mat.get-theme-color($theme, primary, A100);
+  color: mat.get-theme-color($theme, primary, A100-contrast);
+}
+
+.track {
+  position: relative;
+  z-index:4;
+  box-shadow: 0px 1px 2px mat.get-theme-color($theme, primary, default);
 }
 
 .mat-mdc-row:hover .mat-mdc-cell {
    background-color: mat.get-theme-color($theme, background, hover);
 }
 
-
 .mat-column-type {
    width: 50px;
 }
 
 .footer {
-  color: mat.get-theme-color($theme, primary, darker);
-  background-color: mat.get-theme-color($theme, primary, lighter);
-  width: 99.5%;
   position: fixed;
-  bottom: 0;
+  z-index: 10;
+  bottom: 4px;
+  width: 30%;
+  margin-left: 35%;
+  margin-right: 35%;
 }
 
-.container {
-  background-color: mat.get-theme-color($theme, primary, default);
-  background-image: url("../../assets/background.png");
-  background-size: 700px;
-  width: 99.1%;
-  position: absolute;
-  top: 60px;
-  bottom: 30px;
-  overflow: auto;
-}
-
-mat-tab-group {
-  position: absolute;
-  top: 10px;
-  bottom: 12px;
-  overflow: auto;
-  left: 50%;
-  transform: translate(-50%, 0);
-  width:1024px;
+/* Just fill up screen if max-width <= 1024 */
+@media only screen and (max-width: 1024px) {
+  .container {
+    width: 100vw;
+  }
 }
