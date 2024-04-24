@@ -1,0 +1,48 @@
+mat-toolbar.header-animations {
+  animation: header-animation 5s linear infinite;
+}
+
+div.container-animations {
+  animation: container-animation 5s linear infinite;
+}
+
+div.footer-animations {
+  animation: footer-animation 5s linear infinite;
+}
+
+@keyframes container-animation {
+  0% {
+    transform-origin: bottom;
+    transform: translate(-50%, 0) rotateY(0deg);
+  }
+  50% {
+    transform-origin: bottom;
+    transform: translate(-50%, 0) rotateY(90deg);
+  }
+}
+
+@keyframes header-animation {
+  from {
+    transform-origin: bottom;
+    transform: rotateX(0deg);
+  }
+  to {
+    transform-origin: bottom;
+    transform: rotateX(360deg);
+  }
+}
+
+@keyframes footer-animation {
+  0% {
+    margin-left: -35%;
+    margin-right: 0%;
+  }
+  50% {
+    margin-left: 100%;
+    margin-right: 135%;
+  }
+  100% {
+    margin-left: -50%;
+    margin-right: -15%;
+  }
+}
