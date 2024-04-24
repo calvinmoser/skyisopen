@@ -3,6 +3,7 @@ package com.techietable.skyisopen.dao;
 import com.techietable.skyisopen.controller.RequestLimitException;
 import com.techietable.skyisopen.dto.Flight;
 import com.techietable.skyisopen.dto.ScheduledArrivals;
+import com.techietable.skyisopen.dto.SearchFlights;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.*;
@@ -19,6 +20,7 @@ import java.util.*;
 @PropertySource("classpath:password.properties")
 public class AeroAPIDao {
     final String ARRIVALS_URL = "https://aeroapi.flightaware.com/aeroapi/airports/IND/flights/scheduled_arrivals?max_pages={max_pages}";
+    final String SEARCH_URL = "https://aeroapi.flightaware.com/aeroapi/flights/search?query={query}";
     final String FLIGHT_URL = "https://aeroapi.flightaware.com/aeroapi/flights/";
 
     private final HttpEntity<String> entity;
@@ -59,11 +61,11 @@ public class AeroAPIDao {
 
         try {
             ResponseEntity<ScheduledArrivals> response = new RestTemplate().exchange(
-                    ARRIVALS_URL,
-                    HttpMethod.GET,
-                    entity,
-                    ScheduledArrivals.class,
-                    params
+                ARRIVALS_URL,
+                HttpMethod.GET,
+                entity,
+                ScheduledArrivals.class,
+                params
             );
 
             if (response.getBody() == null)
@@ -78,6 +80,39 @@ public class AeroAPIDao {
             throw new ResponseStatusException(e.getStatusCode(), e.getMessage());
         } finally {
             validRequests.remove(requestId);
+        }
+    }
+
+    public ArrayList<Flight> searchAreaForPlanes(UUID requestId, Map<String, Object> params) {
+        if (!validRequests.contains(requestId)) {
+            System.out.println(new Date() + " Request ID passed from service layer is not valid.");
+            // TODO: This type of exception should not be thrown in dao
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal request Id not valid.");
+        }
+        try {
+            ResponseEntity<SearchFlights> response = new RestTemplate().exchange(
+                SEARCH_URL,
+                HttpMethod.GET,
+                entity,
+                SearchFlights.class,
+                params
+            );
+
+            if (response.getBody() == null)
+                // TODO: This type of exception should not be thrown in dao
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ERROR: body missing in response. Status Code: " + response.getStatusCode());
+
+            SearchFlights searchFlights = response.getBody();
+
+            if (searchFlights == null || searchFlights.flights == null)
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Response from AeroAPI is null or has null for flights property. Status Code: " + response.getStatusCode());
+
+            addPages(searchFlights.num_pages);
+            System.out.println("AeroAPIDao: Found " + searchFlights.flights.size() + " flights!");
+
+            return searchFlights.flights;
+        } catch (HttpClientErrorException e) {
+            throw new ResponseStatusException(e.getStatusCode(), e.getMessage());
         }
     }
 
