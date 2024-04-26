@@ -29,16 +29,14 @@ public class SkyIsOpenRestController {
 
     @GetMapping("/flights/search")
     public synchronized ArrayList<Flight> searchAreaForPlanes (
-        @RequestParam(required = false) Integer maxPages,
-        @RequestParam Float latitude,
-        @RequestParam Float longitude)
+        @RequestParam(required = false) Integer maxPages)
     {
         if (maxPages == null)
             maxPages = 1;
         else if (maxPages < 1 || maxPages > 10)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "max_pages must be between 1 and 10 inclusively");
 
-        return service.searchAreaForPlanes(maxPages, latitude, longitude);
+        return service.searchAreaForPlanes(maxPages);
     }
 
     @GetMapping("/flights/{id}/position")
