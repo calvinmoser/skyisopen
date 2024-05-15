@@ -13,7 +13,9 @@
   <table mat-table class="tt mat-elevation-z8" [dataSource]="dataSource">
     <ng-container matColumnDef="flight">
       <th mat-header-cell *matHeaderCellDef>flight</th>
-      <td mat-cell *matCellDef="let flight;">{{ flight.operator }}{{flight.flight_number}}</td>
+      <td mat-cell *matCellDef="let flight;">
+        <button mat-flat-button (click)="openFlightRadar24(flight)">{{flight.getFlight(flight)}}</button>
+      </td>
     </ng-container>
     <ng-container matColumnDef="aircraft_type">
       <th mat-header-cell *matHeaderCellDef>aircraft</th>

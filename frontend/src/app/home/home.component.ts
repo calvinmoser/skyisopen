@@ -123,4 +123,8 @@ export class HomeComponent {
     }
   }
 
+  openFlightRadar24(flight: Flight){
+    let url = "https://www.flightradar24.com/" + flight.getFlight();
+    window.open(url, "_blank", "noreferrer");
+  }
 }
