@@ -90,6 +90,16 @@ export class Flight {
       return Math.round(100 * (Math.sqrt( Math.pow(diffLat, 2) + Math.pow(diffLong, 2)))) / 100;
   }
 
+  getFlight(): string {
+    if (this.operator == undefined)
+      return "???";
+
+    if (this.flight_number == undefined)
+      return this.operator;
+
+    return this.operator + this.flight_number;
+  }
+
   writeMessage(message: String) {
       //return new Date(), this.operator + this.flight_number + ": Stage: " + Stage[this.stage] + ": " + message;
   }
