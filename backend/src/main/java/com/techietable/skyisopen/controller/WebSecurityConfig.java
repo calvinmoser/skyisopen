@@ -24,7 +24,9 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests((requests) -> requests
+                .requestMatchers("/aero/scheduled_arrivals", "/aero/flights/*/position").permitAll()
                 .requestMatchers("/aero/**").authenticated()
                 .anyRequest().permitAll()
                 )

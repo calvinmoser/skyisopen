@@ -1,9 +1,11 @@
 package com.techietable.skyisopen.controller;
 
 import com.techietable.skyisopen.dto.Flight;
+import com.techietable.skyisopen.service.DemoService;
 import com.techietable.skyisopen.service.SkyisOpenServiceLayer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -16,8 +18,13 @@ public class SkyIsOpenRestController {
     @Autowired
     SkyisOpenServiceLayer service;
 
+    @Autowired
+    DemoService demoService;
+
     @GetMapping("/scheduled_arrivals")
-    public synchronized ArrayList<Flight> getScheduledFlights(@RequestParam(required = false) Integer maxPages) {
+    public synchronized List<Flight> getScheduledFlights(Authentication auth, @RequestParam(required = false) Integer maxPages) {
+
+        if (auth == null || !auth.isAuthenticated()) return demoService.getArrivals();
 
         if (maxPages == null)
             maxPages = 1;
@@ -40,9 +47,11 @@ public class SkyIsOpenRestController {
     }
 
     @GetMapping("/flights/{id}/position")
-    public synchronized Flight getFlightPosition(@PathVariable String id) {
+    public synchronized Flight getFlightPosition(Authentication auth, @PathVariable String id) {
 
-        if (id == null || id == "")
+        if (auth == null || !auth.isAuthenticated()) return demoService.getPosition(id);
+
+        if (id == null || id.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "id not specified");
 
         return service.flightPosition(id);

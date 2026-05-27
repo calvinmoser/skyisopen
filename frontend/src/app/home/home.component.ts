@@ -3,18 +3,18 @@ import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatDialog } from '@angular/material/dialog';
+import { MatTabsModule } from '@angular/material/tabs';
 import { AeroAPIService } from '../services/aeroapi.service';
+import { AuthService } from '../services/auth.service';
+import { LoginDialogComponent } from '../login-dialog/login-dialog.component';
 import { Flight, Position } from '../model/flight';
 import { Airport } from '../model/airport';
-
-// NOTE: Perhaps since this is a standalone component, the BrowserAnimationsModule needs to be added
-//  as a provider in app.config: provideAnimations();
-import { MatTabsModule } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MatToolbarModule, MatButtonModule, MatTableModule, CommonModule, MatTabsModule],
+  imports: [MatToolbarModule, MatButtonModule, MatTableModule, CommonModule, MatTabsModule, LoginDialogComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss', '../animations/home.animations.scss']
 })
@@ -38,7 +38,7 @@ export class HomeComponent {
   easterEgg: boolean = false;
   easterEggCount: number = 0;
 
-  constructor(private aeroAPIservice: AeroAPIService) {}
+  constructor(private aeroAPIservice: AeroAPIService, public authService: AuthService, private dialog: MatDialog) {}
 
   ngOnInit(): void {
     if (window.innerWidth < 365) {
@@ -110,6 +110,21 @@ export class HomeComponent {
           if (i > 5 || (foundOne && to_waypoint > 10)) return; // Out of bounds
         }
       });
+  }
+
+  openLogin() {
+    const ref = this.dialog.open(LoginDialogComponent);
+    ref.afterClosed().subscribe(result => {
+      if (result) {
+        this.authService.login(result.username, result.password);
+        this.getScheduledArrivals(this.numPages);
+      }
+    });
+  }
+
+  logout() {
+    this.authService.logout();
+    this.getScheduledArrivals(this.numPages);
   }
 
   removeFlight(flight: Flight) {};
