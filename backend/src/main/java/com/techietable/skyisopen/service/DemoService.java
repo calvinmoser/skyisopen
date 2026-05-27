@@ -39,7 +39,9 @@ public class DemoService {
     }
 
     public List<Flight> getArrivals() {
-        return arrivals;
+        return arrivals.stream()
+            .sorted(Comparator.comparing(f -> f.estimated_on != null ? f.estimated_on : new Date(Long.MAX_VALUE)))
+            .collect(Collectors.toList());
     }
 
     public Flight getPosition(String faFlightId) {
