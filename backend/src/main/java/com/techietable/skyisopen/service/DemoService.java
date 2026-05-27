@@ -14,9 +14,12 @@ import java.util.stream.Collectors;
 @Service
 public class DemoService {
 
+    static final long T0 = 1779816300000L; // 2026-05-26 12:05:00
+    static final long LOOP_DURATION = 3 * 60 * 60 * 1000L; // 3 hours
+
     private List<Flight> arrivals = new ArrayList<>();
     private Map<String, FlightTrack> trackHistory = new LinkedHashMap<>();
-    private long loopStartTime;
+    private Map<String, long[]> trackBounds = new LinkedHashMap<>(); // fa_flight_id -> [firstTs, lastTs]
 
     @PostConstruct
     public void load() {
@@ -35,10 +38,43 @@ public class DemoService {
         } catch (Exception e) {
             System.out.println("DemoService: Failed to load track history - " + e.getMessage());
         }
-        loopStartTime = System.currentTimeMillis();
+
+        for (Map.Entry<String, FlightTrack> entry : trackHistory.entrySet()) {
+            List<FlightTrack.Position> positions = entry.getValue().positions;
+            if (positions == null || positions.isEmpty()) continue;
+            long first = positions.stream().filter(p -> p.timestamp != null)
+                .mapToLong(p -> p.timestamp.getTime()).min().orElse(T0);
+            long last = positions.stream().filter(p -> p.timestamp != null)
+                .mapToLong(p -> p.timestamp.getTime()).max().orElse(T0);
+            trackBounds.put(entry.getKey(), new long[]{first, last});
+        }
+        System.out.println("DemoService: Loop duration = " + LOOP_DURATION / 60000 + " min");
+    }
+
+    private long virtualNow() {
+        return T0 + (System.currentTimeMillis() - T0) % LOOP_DURATION;
     }
 
     public List<Flight> getArrivals() {
+        long vNow = virtualNow();
+        for (Flight flight : arrivals) {
+            long[] bounds = trackBounds.get(flight.fa_flight_id);
+            if (bounds == null) continue;
+            long firstTs = bounds[0], lastTs = bounds[1];
+            long trackDuration = lastTs - firstTs;
+
+            if (trackDuration > 0) {
+                long clamped = Math.max(firstTs, Math.min(lastTs, vNow));
+                flight.progress_percent = (int)((clamped - firstTs) * 100 / trackDuration);
+            }
+
+            FlightTrack track = trackHistory.get(flight.fa_flight_id);
+            if (track != null && track.actual_distance != null) flight.route_distance = track.actual_distance;
+
+            // if landed this cycle, push estimated_on to next cycle so it sorts to the bottom
+            long virtualArrival = lastTs <= vNow ? lastTs + LOOP_DURATION : lastTs;
+            flight.estimated_on = new Date(virtualArrival);
+        }
         return arrivals.stream()
             .sorted(Comparator.comparing(f -> f.estimated_on != null ? f.estimated_on : new Date(Long.MAX_VALUE)))
             .collect(Collectors.toList());
@@ -56,25 +92,24 @@ public class DemoService {
 
         long firstTs = positions.get(0).timestamp.getTime();
         long lastTs = positions.get(positions.size() - 1).timestamp.getTime();
-        long loopDuration = lastTs - firstTs;
-        if (loopDuration <= 0) return buildFlight(faFlightId, positions.get(0));
 
-        long elapsed = (System.currentTimeMillis() - loopStartTime) % loopDuration;
-        long virtualTs = firstTs + elapsed;
+        long vNow = virtualNow();
+        if (vNow < firstTs) return buildFlight(faFlightId, positions.get(0));
+        if (vNow > lastTs) return buildFlight(faFlightId, positions.get(positions.size() - 1));
 
         FlightTrack.Position prev = positions.get(0);
         FlightTrack.Position next = positions.get(positions.size() - 1);
         for (int i = 0; i < positions.size() - 1; i++) {
             long t0 = positions.get(i).timestamp.getTime();
             long t1 = positions.get(i + 1).timestamp.getTime();
-            if (virtualTs >= t0 && virtualTs <= t1) {
+            if (vNow >= t0 && vNow <= t1) {
                 prev = positions.get(i);
                 next = positions.get(i + 1);
                 break;
             }
         }
 
-        return deadReckon(faFlightId, prev, next, virtualTs);
+        return deadReckon(faFlightId, prev, next, vNow);
     }
 
     private Flight buildFlight(String faFlightId, FlightTrack.Position p) {

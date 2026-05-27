@@ -15,6 +15,24 @@ Requires an AeroAPI key in `backend/src/main/resources/password.properties`.
 Fetches KIND arrivals for a **4-hour window starting 24 hours ago**, then fetches a raw position track for each flight.
 Raw `FlightTrack` data is saved as-is; `DemoService` handles transformation at request time.
 
+## Demo Loop
+
+- **t0** = 2026-05-26 12:05:00 (`T0 = 1779816300000L`, earliest meaningful arrival in the dataset)
+- **Loop duration** = 3 hours (hardcoded)
+- **Virtual now** = `t0 + ((realNow - t0) % loopDuration)`
+
+At any wall-clock time, the virtual position in the loop is `(realNow - t0) % loopDuration`. This means any page load or refresh shows proper in-progress flight data with no cold start. Flights that have landed in the current cycle sort to the bottom of the arrivals list with their `estimated_on` bumped to the next cycle.
+
+## Progress Calculation
+
+AeroAPI's `progress_percent` is time-based:
+
+```
+progress_percent = (now - actual_off) / (estimated_on - actual_off) * 100
+```
+
+In demo mode, `now` is the virtual timestamp (`t0 + elapsed`), `actual_off` maps to a flight's first track position, and `estimated_on` maps to its last.
+
 ### Endpoints
 
 #### `GET /airports/{id}/flights/arrivals` → [schema](#arrivals-schema)
