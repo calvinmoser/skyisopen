@@ -16,8 +16,8 @@ import java.util.*;
 public class DataCollector {
 
     static final String BASE_URL = "https://aeroapi.flightaware.com/aeroapi";
-    static final String ARRIVALS_URL = BASE_URL + "/history/airports/KIND/flights/arrivals?start={start}&end={end}&max_pages={max_pages}";
-    static final String TRACK_URL = BASE_URL + "/history/flights/{id}/track";
+    static final String ARRIVALS_URL = BASE_URL + "/airports/KIND/flights/arrivals?start={start}&end={end}&max_pages={max_pages}";
+    static final String TRACK_URL = BASE_URL + "/flights/{id}/track";
 
     static final ZoneId ZONE = ZoneId.of("America/Indiana/Indianapolis");
     static final int START_HOUR = 10;

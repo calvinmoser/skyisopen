@@ -4,20 +4,20 @@ Notes on how the demo mode data is collected and what lives here.
 
 ## Files
 
-- `arrivals.json` — historical arrivals from AeroAPI, used to populate the demo arrivals table
-- `tracks.json` — position track per flight keyed by `fa_flight_id`, used by `DemoService` for dead-reckoning
+- `arrivals.json` — arrivals from AeroAPI, used to populate the demo arrivals table
+- `flight-history.json` — raw position track per flight keyed by `fa_flight_id`, used by `DemoService` for dead-reckoning
 
 ## Collection
 
 Data is collected by running `DataCollector.java` (`main` method, no Spring context needed).
 Requires an AeroAPI key in `backend/src/main/resources/password.properties`.
 
-Fetches KIND arrivals for **yesterday, 10am–2pm ET**, then fetches a position track for each flight.
-Track positions are transformed into the `Map<fa_flight_id, List<Flight>>` format that `DemoService` expects.
+Fetches KIND arrivals for **yesterday, 10am–2pm ET**, then fetches a raw position track for each flight.
+Raw `FlightTrack` data is saved as-is; `DemoService` handles transformation at request time.
 
 ### Endpoints
 
-#### `GET /history/airports/{id}/flights/arrivals` → [schema](#arrivals-schema)
+#### `GET /airports/{id}/flights/arrivals` → [schema](#arrivals-schema)
 
 | Parameter | Type | Required | Notes |
 |-----------|------|----------|-------|
@@ -29,7 +29,7 @@ Track positions are transformed into the `Map<fa_flight_id, List<Flight>>` forma
 | `max_pages` | query | no | Default 1, min 1. Upper limit on pages returned. |
 | `cursor` | query | no | Opaque value for paging. |
 
-#### `GET /history/flights/{id}/track` → [schema](#track-schema)
+#### `GET /flights/{id}/track` → [schema](#track-schema)
 
 ## Notes
 
