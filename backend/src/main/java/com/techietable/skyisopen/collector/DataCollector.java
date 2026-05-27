@@ -47,11 +47,11 @@ public class DataCollector {
         List<Flight> arrivals = fetchArrivals(start, end);
         System.out.println("Fetched " + arrivals.size() + " arrivals.");
 
-        Map<String, List<Flight>> tracks = new LinkedHashMap<>();
+        Map<String, FlightTrack> tracks = new LinkedHashMap<>();
         for (Flight flight : arrivals) {
             System.out.println("Fetching track for " + flight.fa_flight_id + "...");
-            List<Flight> positions = fetchTrack(flight.fa_flight_id);
-            if (!positions.isEmpty()) tracks.put(flight.fa_flight_id, positions);
+            FlightTrack track = fetchTrack(flight.fa_flight_id);
+            if (track != null) tracks.put(flight.fa_flight_id, track);
             Thread.sleep(RATE_LIMIT_MS);
         }
 
@@ -66,26 +66,8 @@ public class DataCollector {
         return response.getBody() != null ? response.getBody().arrivals : List.of();
     }
 
-    static List<Flight> fetchTrack(String faFlightId) {
+    static FlightTrack fetchTrack(String faFlightId) {
         ResponseEntity<FlightTrack> response = restTemplate.exchange(TRACK_URL, HttpMethod.GET, entity, FlightTrack.class, Map.of("id", faFlightId));
-        if (response.getBody() == null || response.getBody().positions == null) return List.of();
-
-        List<Flight> result = new ArrayList<>();
-        for (FlightTrack.Position pos : response.getBody().positions) {
-            Flight f = new Flight();
-            f.fa_flight_id = faFlightId;
-            f.last_position = new Flight.Position();
-            f.last_position.fa_flight_id = faFlightId;
-            f.last_position.altitude = pos.altitude;
-            f.last_position.altitude_change = pos.altitude_change;
-            f.last_position.groundspeed = pos.groundspeed;
-            f.last_position.heading = pos.heading;
-            f.last_position.latitude = pos.latitude;
-            f.last_position.longitude = pos.longitude;
-            f.last_position.timestamp = pos.timestamp;
-            f.last_position.update_type = pos.update_type;
-            result.add(f);
-        }
-        return result;
+        return response.getBody();
     }
 }
