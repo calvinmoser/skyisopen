@@ -5,14 +5,14 @@ Notes on how the demo mode data is collected and what lives here.
 ## Files
 
 - `arrivals.json` — arrivals from AeroAPI, used to populate the demo arrivals table
-- `flight-history.json` — raw position track per flight keyed by `fa_flight_id`, used by `DemoService` for dead-reckoning
+- `track-history.json` — raw position track per flight keyed by `fa_flight_id`, used by `DemoService` for dead-reckoning
 
 ## Collection
 
 Data is collected by running `DataCollector.java` (`main` method, no Spring context needed).
 Requires an AeroAPI key in `backend/src/main/resources/password.properties`.
 
-Fetches KIND arrivals for **yesterday, 10am–2pm ET**, then fetches a raw position track for each flight.
+Fetches KIND arrivals for a **4-hour window starting 24 hours ago**, then fetches a raw position track for each flight.
 Raw `FlightTrack` data is saved as-is; `DemoService` handles transformation at request time.
 
 ### Endpoints
