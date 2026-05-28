@@ -61,7 +61,7 @@ export class HomeComponent {
 
   getScheduledArrivals(maxPages: number) {
     this.aeroAPIservice.getScheduledArrivals(maxPages)
-      .subscribe(flights => {
+      .subscribe({ next: (flights) => {
         for (var flight of flights) {
           flight.calcInitialDistance();
 
@@ -84,7 +84,10 @@ export class HomeComponent {
         this.dataSource.data = flights;
         this.typeDataSource.data = [...this.aircraftTypes].sort((a, b) => a[0].valueOf().localeCompare(b[0].valueOf()));
         if (!this.authService.isAuthenticated()) this.initFlyoverTracking();
-      });
+      }, error: (err) => {
+        console.error('getScheduledArrivals failed:', err);
+        this.snackBar.open('Failed to load flights.', undefined, { duration: 4000, verticalPosition: 'top' });
+      }});
   }
 
   identifyAircraft(){

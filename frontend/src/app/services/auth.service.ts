@@ -3,25 +3,23 @@ import { Injectable } from '@angular/core';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
-  private username: string | null = null;
-  private password: string | null = null;
+  private authHeader: string | null = sessionStorage.getItem('auth');
 
   login(username: string, password: string) {
-    this.username = username;
-    this.password = password;
+    this.authHeader = btoa(username + ':' + password);
+    sessionStorage.setItem('auth', this.authHeader);
   }
 
   logout() {
-    this.username = null;
-    this.password = null;
+    this.authHeader = null;
+    sessionStorage.removeItem('auth');
   }
 
   isAuthenticated(): boolean {
-    return this.username !== null;
+    return this.authHeader !== null;
   }
 
   getAuthHeader(): string | null {
-    if (!this.username || !this.password) return null;
-    return 'Basic ' + btoa(this.username + ':' + this.password);
+    return this.authHeader ? 'Basic ' + this.authHeader : null;
   }
 }

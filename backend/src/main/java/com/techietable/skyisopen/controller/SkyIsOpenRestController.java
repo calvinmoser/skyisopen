@@ -3,6 +3,7 @@ package com.techietable.skyisopen.controller;
 import com.techietable.skyisopen.dto.Flight;
 import com.techietable.skyisopen.service.DemoService;
 import com.techietable.skyisopen.service.SkyisOpenServiceLayer;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -22,7 +23,8 @@ public class SkyIsOpenRestController {
     DemoService demoService;
 
     @GetMapping("/scheduled_arrivals")
-    public synchronized List<Flight> getScheduledFlights(Authentication auth, @RequestParam(required = false) Integer maxPages) {
+    public synchronized List<Flight> getScheduledFlights(Authentication auth, @RequestParam(required = false) Integer maxPages, HttpServletResponse response) {
+        response.setHeader("Cache-Control", "no-store");
 
         if (maxPages == null)
             maxPages = 1;
