@@ -2,8 +2,8 @@
 @import "../../styles.scss";
 
 mat-toolbar.header {
-  background-color: mat.get-theme-color($theme, primary, lighter);
-  color: mat.get-theme-color($theme, primary, default);
+  background-color: mat.get-theme-color($dark-theme, primary, lighter);
+  color: mat.get-theme-color($dark-theme, primary, default);
   position: relative;
   z-index: 10;
   width:100vw;
@@ -25,7 +25,7 @@ mat-toolbar.header {
 }
 
 .sec-toolbar {
-  background-color: mat.get-theme-color($theme, primary, 600);
+  background-color: mat.get-theme-color($dark-theme, primary, 600);
   position: absolute;
   z-index: 0;
   display: flex;
@@ -65,7 +65,7 @@ mat-toolbar.header {
 }
 
 .mat-mdc-raised-button.identify {
-  background-color: mat.get-theme-color($theme, primary, 600);
+  background-color: mat.get-theme-color($dark-theme, primary, 600);
 }
 
 .container {
@@ -80,30 +80,30 @@ mat-toolbar.header {
 }
 
 tr.mat-header-row {
-  background-color: mat.get-theme-color($theme, primary, default);
-  color: mat.get-theme-color($theme, primary, lighter);
+  background-color: mat.get-theme-color($dark-theme, primary, default);
+  color: mat.get-theme-color($dark-theme, primary, lighter);
   position: relative;
   z-index: 5;
 }
 
 td {
-  color: mat.get-theme-color($theme, primary, lighter);
+  color: mat.get-theme-color($dark-theme, primary, lighter);
 }
 
 .target {
   font-weight: bold;
-  background-color: mat.get-theme-color($theme, primary, A100);
-  color: mat.get-theme-color($theme, primary, A100-contrast);
+  background-color: mat.get-theme-color($dark-theme, primary, A100);
+  color: mat.get-theme-color($dark-theme, primary, A100-contrast);
 }
 
 .track {
   position: relative;
   z-index:4;
-  box-shadow: 0px 1px 2px mat.get-theme-color($theme, primary, default);
+  box-shadow: 0px 1px 2px mat.get-theme-color($dark-theme, primary, default);
 }
 
 .mat-mdc-row:hover .mat-mdc-cell {
-   background-color: mat.get-theme-color($theme, background, hover);
+   background-color: mat.get-theme-color($dark-theme, background, hover);
 }
 
 .mat-column-type {
