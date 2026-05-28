@@ -20,6 +20,7 @@ public class DemoService {
     private List<Flight> arrivals = new ArrayList<>();
     private Map<String, FlightTrack> trackHistory = new LinkedHashMap<>();
     private Map<String, long[]> trackBounds = new LinkedHashMap<>(); // fa_flight_id -> [firstTs, lastTs]
+    private Map<String, Long> originalEstimatedOn = new LinkedHashMap<>();
 
     @PostConstruct
     public void load() {
@@ -48,6 +49,10 @@ public class DemoService {
                 .mapToLong(p -> p.timestamp.getTime()).max().orElse(T0);
             trackBounds.put(entry.getKey(), new long[]{first, last});
         }
+        for (Flight flight : arrivals) {
+            if (flight.estimated_on != null)
+                originalEstimatedOn.put(flight.fa_flight_id, flight.estimated_on.getTime());
+        }
         System.out.println("DemoService: Loop duration = " + LOOP_DURATION / 60000 + " min");
     }
 
@@ -66,9 +71,9 @@ public class DemoService {
                 flight.progress_percent = 0;
             } else {
                 Date offDate = flight.actual_off != null ? flight.actual_off : flight.estimated_off;
-                if (offDate != null && flight.estimated_on != null) {
+                Long on = originalEstimatedOn.get(flight.fa_flight_id);
+                if (offDate != null && on != null) {
                     long off = offDate.getTime();
-                    long on = flight.estimated_on.getTime();
                     if (on > off) flight.progress_percent = Math.max(0, (int)((vNow - off) * 100 / (on - off)));
                 }
             }
