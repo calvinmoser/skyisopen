@@ -11,4 +11,6 @@ services:
     hostname: skyisopen
     ports:
     - '55556:8080'
+    volumes:
+      - ./backend/data:/usr/src/app/backend/data:ro
     restart: always
