@@ -88,9 +88,14 @@ export class HomeComponent {
   }
 
   identifyAircraft(){
-    this.aeroAPIservice.getScheduledArrivals(4)
+    this.aeroAPIservice.getScheduledArrivals(1)
       .subscribe(async flights => {
         flights.map(f => {f.calcInitialDistance()});
+        for (const flight of flights) {
+          for (const type of this.bigPlanes) {
+            if (flight.aircraft_type.startsWith(type)) flight.color = "track";
+          }
+        }
         this.flights = flights;
         this.dataSource.data = flights;
         var foundOne = false;
