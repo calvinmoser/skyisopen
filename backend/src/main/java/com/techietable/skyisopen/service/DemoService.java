@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 @Service
 public class DemoService {
 
-    static final long T0 = 1779816300000L; // 2026-05-26 12:05:00
-    static final long LOOP_DURATION = 3 * 60 * 60 * 1000L; // 3 hours
+    static final long T0 = 1779894900000L; // 2026-05-27 11:15:00 EDT — first flight lands 11:21
+    static final long LOOP_DURATION = 160 * 60 * 1000L; // 2h40m
 
     private List<Flight> arrivals = new ArrayList<>();
     private Map<String, FlightTrack> trackHistory = new LinkedHashMap<>();
