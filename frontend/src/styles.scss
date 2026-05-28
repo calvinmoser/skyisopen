@@ -26,6 +26,13 @@ $theme: mat.define-dark-theme((
 @include mat.table-theme($theme);
 @include mat.toolbar-theme($theme);
 @include mat.tabs-theme($theme);
+@include mat.form-field-theme($theme);
+@include mat.input-theme($theme);
+@include mat.dialog-theme($theme);
+
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: 12px !important;
+}
 
 .background {
   background-color: mat.get-theme-color($theme, primary, default);

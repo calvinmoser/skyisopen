@@ -9,6 +9,11 @@ mat-toolbar.header {
   width:100vw;
   height:60px;
   transform: translate(-8px, -8px);
+
+  button {
+    border: none;
+    outline: none;
+  }
 }
 
 .spacer {
