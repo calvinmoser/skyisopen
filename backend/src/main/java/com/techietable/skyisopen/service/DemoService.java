@@ -60,20 +60,25 @@ public class DemoService {
         for (Flight flight : arrivals) {
             long[] bounds = trackBounds.get(flight.fa_flight_id);
             if (bounds == null) continue;
-            long firstTs = bounds[0], lastTs = bounds[1];
-            long trackDuration = lastTs - firstTs;
+            long lastTs = bounds[1];
 
-            if (trackDuration > 0) {
-                long clamped = Math.max(firstTs, Math.min(lastTs, vNow));
-                flight.progress_percent = (int)((clamped - firstTs) * 100 / trackDuration);
+            if (lastTs <= vNow) {
+                flight.progress_percent = 0;
+            } else {
+                Date offDate = flight.actual_off != null ? flight.actual_off : flight.estimated_off;
+                if (offDate != null && flight.estimated_on != null) {
+                    long off = offDate.getTime();
+                    long on = flight.estimated_on.getTime();
+                    if (on > off) flight.progress_percent = Math.max(0, (int)((vNow - off) * 100 / (on - off)));
+                }
             }
 
             FlightTrack track = trackHistory.get(flight.fa_flight_id);
             if (track != null && track.actual_distance != null) flight.route_distance = track.actual_distance;
 
-            // if landed this cycle, push estimated_on to next cycle so it sorts to the bottom
+            // map virtual arrival to real wall-clock time so the UI shows a meaningful estimated time
             long virtualArrival = lastTs <= vNow ? lastTs + LOOP_DURATION : lastTs;
-            flight.estimated_on = new Date(virtualArrival);
+            flight.estimated_on = new Date(System.currentTimeMillis() + (virtualArrival - vNow));
         }
         return arrivals.stream()
             .sorted(Comparator.comparing(f -> f.estimated_on != null ? f.estimated_on : new Date(Long.MAX_VALUE)))
