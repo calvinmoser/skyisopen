@@ -1,11 +1,12 @@
 <mat-toolbar class="header mat-elevation-z8" [class.header-animations]="easterEgg">
   <img src="/assets/logo.png" alt="logo" aria-hidden="true" />
   <span class="spacer"></span>
-  <span style="text-overflow: ellipsis; white-space: nowrap;overflow: hidden;" >{{ title }}</span>
+  <span style="text-overflow: ellipsis; white-space: nowrap;overflow: hidden; cursor: pointer;" (click)="triggerPlane()">{{ title }}</span>
   <span class="spacer-flex"></span>
   <button mat-button *ngIf="!authService.isAuthenticated()" (click)="openLogin()">Login</button>
   <button mat-button *ngIf="authService.isAuthenticated()" (click)="logout()">Logout</button>
 </mat-toolbar>
+<img *ngIf="planeFlyover" src="/assets/plane.svg" class="plane-flyover" alt="plane" />
 <div class="sec-toolbar left-angle"></div>
 <div class="sec-toolbar right-angle"></div>
 <div class="sec-toolbar middle-fill"></div>

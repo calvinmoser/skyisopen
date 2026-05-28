@@ -37,6 +37,7 @@ export class HomeComponent {
 
   easterEgg: boolean = false;
   easterEggCount: number = 0;
+  planeFlyover: boolean = false;
 
   constructor(private aeroAPIservice: AeroAPIService, public authService: AuthService, private dialog: MatDialog) {}
 
@@ -128,6 +129,12 @@ export class HomeComponent {
   }
 
   removeFlight(flight: Flight) {};
+
+  triggerPlane() {
+    if (this.planeFlyover) return;
+    this.planeFlyover = true;
+    setTimeout(() => this.planeFlyover = false, 10000);
+  }
 
   easterEggHunt() {
     console.log(this.easterEggCount);
