@@ -60,8 +60,9 @@ public class DemoService {
         return T0 + (System.currentTimeMillis() - T0) % LOOP_DURATION;
     }
 
-    public List<Flight> getArrivals() {
+    public List<Flight> getArrivals(int maxPages) {
         long vNow = virtualNow();
+        int limit = maxPages * 15;
         for (Flight flight : arrivals) {
             long[] bounds = trackBounds.get(flight.fa_flight_id);
             if (bounds == null) continue;
@@ -85,6 +86,7 @@ public class DemoService {
         }
         return arrivals.stream()
             .sorted(Comparator.comparing(f -> f.estimated_on != null ? f.estimated_on : new Date(Long.MAX_VALUE)))
+            .limit(limit)
             .collect(Collectors.toList());
     }
 

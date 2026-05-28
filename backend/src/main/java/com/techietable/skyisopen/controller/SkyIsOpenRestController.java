@@ -24,12 +24,12 @@ public class SkyIsOpenRestController {
     @GetMapping("/scheduled_arrivals")
     public synchronized List<Flight> getScheduledFlights(Authentication auth, @RequestParam(required = false) Integer maxPages) {
 
-        if (auth == null || !auth.isAuthenticated()) return demoService.getArrivals();
-
         if (maxPages == null)
             maxPages = 1;
         else if (maxPages < 1 || maxPages > 10)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "max_pages must be between 1 and 10 inclusively");
+
+        if (auth == null || !auth.isAuthenticated()) return demoService.getArrivals(maxPages);
 
         return service.scheduledFlights(maxPages);
     }

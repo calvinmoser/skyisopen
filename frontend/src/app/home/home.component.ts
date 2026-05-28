@@ -25,7 +25,7 @@ export class HomeComponent {
   title: string = "Indianapolis International Airport";
   dataSource = new MatTableDataSource<Flight>([]);
   flightMap: Map <String, Flight> = new Map<String, Flight>();
-  numPages = 1;
+  numPages = 2;
   totalCalls: number = 0;
   displayedColumns: string[] = [ /*"fa_flight_id",*/ "flight", "aircraft_type", /*"scheduled_on",*/ "origin", /*"groundspeed",*/
     /*"altitude", "angle",*/ "to_airport", /*"to_waypoint", "estimated", "next_update", "updated", "remove"*/ "estimated_on"];
@@ -54,7 +54,7 @@ export class HomeComponent {
       this.title = "Indianapolis International"
     }
     if (window.innerWidth > window.innerHeight && window.innerWidth >- 1024) {
-      this.numPages = 4;
+      this.numPages = 1;
     }
     this.getScheduledArrivals(this.numPages);
   }
@@ -88,7 +88,7 @@ export class HomeComponent {
   }
 
   identifyAircraft(){
-    this.aeroAPIservice.getScheduledArrivals(1)
+    this.aeroAPIservice.getScheduledArrivals(this.numPages)
       .subscribe(async flights => {
         flights.map(f => {f.calcInitialDistance()});
         for (const flight of flights) {
