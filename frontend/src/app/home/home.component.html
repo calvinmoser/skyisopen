@@ -6,7 +6,7 @@
   <button mat-button *ngIf="!authService.isAuthenticated()" (click)="openLogin()">Login</button>
   <button mat-button *ngIf="authService.isAuthenticated()" (click)="logout()">Logout</button>
 </mat-toolbar>
-<img *ngIf="planeFlyover" src="/assets/plane.svg" class="plane-flyover" alt="plane" />
+<img *ngIf="planeFlyover" src="/assets/plane.svg" class="plane-flyover" [style.animation-duration]="flyoverDuration + 's'" [style.animation-delay]="flyoverDelay + 's'" alt="plane" />
 <div class="sec-toolbar left-angle"></div>
 <div class="sec-toolbar right-angle"></div>
 <div class="sec-toolbar middle-fill"></div>

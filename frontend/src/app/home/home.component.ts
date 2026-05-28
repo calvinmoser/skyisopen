@@ -38,6 +38,11 @@ export class HomeComponent {
   easterEgg: boolean = false;
   easterEggCount: number = 0;
   planeFlyover: boolean = false;
+  flyoverDuration: number = 10;
+  flyoverDelay: number = 0;
+
+  private nearFlights: Set<string> = new Set();
+  private nearPollInterval: any;
 
   constructor(private aeroAPIservice: AeroAPIService, public authService: AuthService, private dialog: MatDialog) {}
 
@@ -77,6 +82,7 @@ export class HomeComponent {
         this.flights = flights;
         this.dataSource.data = flights;
         this.typeDataSource.data = [...this.aircraftTypes].sort((a, b) => a[0].valueOf().localeCompare(b[0].valueOf()));
+        if (!this.authService.isAuthenticated()) this.initFlyoverTracking();
       });
   }
 
@@ -130,10 +136,77 @@ export class HomeComponent {
 
   removeFlight(flight: Flight) {};
 
-  triggerPlane() {
+  triggerPlane(duration: number = 10, to_waypoint: number = 4) {
     if (this.planeFlyover) return;
+    this.flyoverDuration = duration;
+    const elapsed = (4 - Math.min(to_waypoint, 4)) / 8 * duration;
+    this.flyoverDelay = -elapsed;
+    const remaining = duration - elapsed;
     this.planeFlyover = true;
-    setTimeout(() => this.planeFlyover = false, 10000);
+    setTimeout(() => this.planeFlyover = false, remaining * 1000);
+  }
+
+  async initFlyoverTracking() {
+    clearInterval(this.nearPollInterval);
+    this.nearFlights.clear();
+
+    const top10 = [...this.flights].slice(0, 10);
+    for (const flight of top10) {
+      const position = await this.aeroAPIservice.getFlightPosition(flight.fa_flight_id);
+      if (!position?.last_position) continue;
+      this.scheduleFlight(flight, position.last_position);
+    }
+
+    this.nearPollInterval = setInterval(() => this.pollNearFlights(), 5 * 60 * 1000);
+  }
+
+  scheduleFlight(flight: Flight, lastPosition: any) {
+    const to_waypoint = flight.calcDistance(Airport.finalWP, lastPosition);
+    const groundspeedMph = lastPosition.groundspeed * 1.15078;
+
+    if (to_waypoint < 4) {
+      const duration = Math.round(8 / groundspeedMph * 3600);
+      this.triggerPlane(duration, to_waypoint);
+    } else if (to_waypoint < 20) {
+      this.nearFlights.add(flight.fa_flight_id);
+    } else {
+      const sleepMs = (to_waypoint - 20) / groundspeedMph * 3600 * 1000;
+      setTimeout(() => this.wakeUpFlight(flight.fa_flight_id), sleepMs);
+    }
+  }
+
+  async wakeUpFlight(fa_flight_id: string) {
+    if (!this.flights.find(f => f.fa_flight_id === fa_flight_id)) return;
+    this.nearFlights.add(fa_flight_id);
+    await this.checkFlight(fa_flight_id);
+  }
+
+  async pollNearFlights() {
+    for (const fa_flight_id of [...this.nearFlights]) {
+      if (!this.flights.find(f => f.fa_flight_id === fa_flight_id)) {
+        this.nearFlights.delete(fa_flight_id);
+        continue;
+      }
+      await this.checkFlight(fa_flight_id);
+    }
+  }
+
+  async checkFlight(fa_flight_id: string) {
+    const flight = this.flights.find(f => f.fa_flight_id === fa_flight_id);
+    if (!flight) return;
+    const position = await this.aeroAPIservice.getFlightPosition(fa_flight_id);
+    if (!position?.last_position) return;
+    const to_waypoint = flight.calcDistance(Airport.finalWP, position.last_position);
+    const groundspeedMph = position.last_position.groundspeed * 1.15078;
+
+    if (to_waypoint > 20) {
+      this.nearFlights.delete(fa_flight_id);
+      const sleepMs = (to_waypoint - 20) / groundspeedMph * 3600 * 1000;
+      setTimeout(() => this.wakeUpFlight(fa_flight_id), sleepMs);
+    } else if (to_waypoint < 4) {
+      const duration = Math.round(8 / groundspeedMph * 3600);
+      this.triggerPlane(duration, to_waypoint);
+    }
   }
 
   easterEggHunt() {

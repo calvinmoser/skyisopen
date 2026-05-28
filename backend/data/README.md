@@ -45,6 +45,8 @@ estimated_on = realNow + (virtualArrival - virtualNow)
 
 Where `virtualArrival` is `lastTrackTimestamp` for in-flight flights, or `lastTrackTimestamp + loopDuration` for flights cycling to the next iteration. This means the estimated column always shows a time relative to right now, not a historical timestamp from the dataset.
 
+**Do not use `estimated_on` for pre-scheduling.** It is a moving target — recalculated on every request relative to real now and virtual now. It intentionally models how AeroAPI behaves in real life, not a fixed known schedule. There is no "exact arrival time" to schedule against.
+
 ## Route Distance
 
 `route_distance` is taken directly from `arrivals.json` (AeroAPI's filed route distance). `actual_distance` from `track-history.json` is **not** used — for training flights that circle, actual track distance can be several times the filed route distance and is not meaningful for "miles remaining."
