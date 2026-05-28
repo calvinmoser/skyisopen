@@ -4,6 +4,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { AeroAPIService } from '../services/aeroapi.service';
 import { AuthService } from '../services/auth.service';
@@ -44,7 +45,7 @@ export class HomeComponent {
   private nearFlights: Set<string> = new Set();
   private nearPollInterval: any;
 
-  constructor(private aeroAPIservice: AeroAPIService, public authService: AuthService, private dialog: MatDialog) {}
+  constructor(private aeroAPIservice: AeroAPIService, public authService: AuthService, private dialog: MatDialog, private snackBar: MatSnackBar) {}
 
   ngOnInit(): void {
     if (window.innerWidth < 365) {
@@ -219,6 +220,10 @@ export class HomeComponent {
   }
 
   openFlightRadar24(flight: Flight){
+    if (!this.authService.isAuthenticated()) {
+      this.snackBar.open('This is demo mode — data is not live.', undefined, { duration: 3000, verticalPosition: 'top', panelClass: 'demo-toast' });
+      return;
+    }
     let url = "https://www.flightradar24.com/" + flight.getFlight();
     window.open(url, "_blank", "noreferrer");
   }

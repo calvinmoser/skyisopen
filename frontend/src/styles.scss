@@ -29,6 +29,16 @@ $theme: mat.define-dark-theme((
 @include mat.form-field-theme($theme);
 @include mat.input-theme($theme);
 @include mat.dialog-theme($theme);
+@include mat.snack-bar-theme($theme);
+
+.demo-toast .mdc-snackbar__surface {
+  background-color: #ffeb3b !important;
+  color: #000 !important;
+  font-weight: 600;
+  font-size: 15px;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important;
+}
 
 .mat-mdc-dialog-container .mdc-dialog__surface {
   border-radius: 12px !important;
