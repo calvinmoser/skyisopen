@@ -2,7 +2,7 @@
   <img src="/assets/logo.png" alt="logo" aria-hidden="true" />
   <span class="spacer"></span>
   <span style="text-overflow: ellipsis; white-space: nowrap;overflow: hidden;" >{{ title }}</span>
-  <span class="spacer"></span>
+  <span class="spacer-flex"></span>
   <button mat-button *ngIf="!authService.isAuthenticated()" (click)="openLogin()">Login</button>
   <button mat-button *ngIf="authService.isAuthenticated()" (click)="logout()">Logout</button>
 </mat-toolbar>

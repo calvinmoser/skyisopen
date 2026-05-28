@@ -15,6 +15,10 @@ mat-toolbar.header {
   width: 16px;
 }
 
+.spacer-flex {
+  flex: 1;
+}
+
 .sec-toolbar {
   background-color: mat.get-theme-color($theme, primary, 600);
   position: absolute;
