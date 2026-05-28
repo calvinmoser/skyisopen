@@ -31,7 +31,23 @@ AeroAPI's `progress_percent` is time-based:
 progress_percent = (now - actual_off) / (estimated_on - actual_off) * 100
 ```
 
-In demo mode, `now` is the virtual timestamp (`t0 + elapsed`), `actual_off` maps to a flight's first track position, and `estimated_on` maps to its last.
+In demo mode, `now` is the virtual timestamp (`t0 + elapsed`). `actual_off` and `estimated_on` are used directly from `arrivals.json` — not mapped to track timestamps. If `actual_off` is null (pre-flight), `estimated_off` is used instead. Result is clamped to a minimum of 0.
+
+Flights whose track has been exhausted in the current cycle (sorted to the bottom) get `progress_percent = 0` — they are pre-flight for the next cycle, not landed.
+
+## Estimated Arrival Display
+
+`estimated_on` is overwritten at request time with a real wall-clock time so the UI shows a meaningful arrival estimate:
+
+```
+estimated_on = realNow + (virtualArrival - virtualNow)
+```
+
+Where `virtualArrival` is `lastTrackTimestamp` for in-flight flights, or `lastTrackTimestamp + loopDuration` for flights cycling to the next iteration. This means the estimated column always shows a time relative to right now, not a historical timestamp from the dataset.
+
+## Route Distance
+
+`route_distance` is taken directly from `arrivals.json` (AeroAPI's filed route distance). `actual_distance` from `track-history.json` is **not** used — for training flights that circle, actual track distance can be several times the filed route distance and is not meaningful for "miles remaining."
 
 ### Endpoints
 

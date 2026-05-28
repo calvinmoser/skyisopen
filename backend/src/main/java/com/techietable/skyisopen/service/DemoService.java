@@ -73,8 +73,6 @@ public class DemoService {
                 }
             }
 
-            FlightTrack track = trackHistory.get(flight.fa_flight_id);
-            if (track != null && track.actual_distance != null) flight.route_distance = track.actual_distance;
 
             // map virtual arrival to real wall-clock time so the UI shows a meaningful estimated time
             long virtualArrival = lastTs <= vNow ? lastTs + LOOP_DURATION : lastTs;
