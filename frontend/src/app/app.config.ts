@@ -15,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     importProvidersFrom(
       LoggerModule.forRoot({
-        level: isDevMode() ? NgxLoggerLevel.DEBUG : NgxLoggerLevel.ERROR,
+        level: isDevMode() ? NgxLoggerLevel.DEBUG : NgxLoggerLevel.INFO,
       })
     )
   ]

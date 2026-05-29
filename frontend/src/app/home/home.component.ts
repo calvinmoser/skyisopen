@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, isDevMode } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -43,6 +43,34 @@ export class HomeComponent {
 
   private nearFlights: Set<string> = new Set();
   private nearPollInterval: any;
+  private flightStatus: Map<string, { flight: string, to_airport: number, to_waypoint: number, groundspeed: number, tier: string }> = new Map();
+
+  private getTier(to_waypoint: number): string {
+    if (to_waypoint < 4) return 'IN_RANGE';
+    if (to_waypoint < 20) return 'NEAR';
+    return 'FAR';
+  }
+
+  private updateFlightStatus(flight: Flight, to_waypoint: number, groundspeedMph: number) {
+    this.flightStatus.set(flight.fa_flight_id, {
+      flight: flight.getFlight(),
+      to_airport: flight.to_airport,
+      to_waypoint,
+      groundspeed: groundspeedMph,
+      tier: this.getTier(to_waypoint)
+    });
+    this.logStatusBoard();
+  }
+
+  private logStatusBoard() {
+    const sorted = [...this.flightStatus.values()].sort((a, b) => a.to_waypoint - b.to_waypoint);
+    if (!isDevMode()) console.clear();
+    for (const s of sorted) {
+      this.logger.info(
+        `${s.flight.padEnd(10)} | to_airport: ${String(s.to_airport.toFixed(0)).padStart(4)} mi | to_waypoint: ${String(s.to_waypoint.toFixed(1)).padStart(5)} mi | ${String(s.groundspeed.toFixed(0)).padStart(4)} mph | ${s.tier}`
+      );
+    }
+  }
 
   constructor(private aeroAPIservice: AeroAPIService, public authService: AuthService, private dialog: MatDialog, private snackBar: MatSnackBar, private logger: NGXLogger) {}
 
@@ -125,6 +153,7 @@ export class HomeComponent {
           this.dataSource.data = this.flights;
 
           this.logger.debug(`[IDENTIFY] [${i}] ${flight.getFlight()} — to_waypoint: ${to_waypoint.toFixed(2)} mi, to_airport: ${to_airport.toFixed(2)} mi`);
+          this.updateFlightStatus(flight, to_waypoint, position.last_position.groundspeed * 1.15078);
 
           if (to_waypoint < 2) {
             this.logger.debug(`[IDENTIFY] [${i}] ${flight.getFlight()} — IN TARGET ZONE (to_waypoint < 2), setting color=target`);
@@ -185,8 +214,10 @@ export class HomeComponent {
   scheduleFlight(flight: Flight, lastPosition: any) {
     const to_waypoint = flight.calcDistance(Airport.finalWP, lastPosition);
     const groundspeedMph = lastPosition.groundspeed * 1.15078;
+    flight.to_airport = flight.calcDistance(Airport.position, lastPosition);
 
     this.logger.debug(`[SCHEDULE] ${flight.getFlight()} — to_waypoint=${to_waypoint.toFixed(2)} mi, groundspeed=${groundspeedMph.toFixed(0)} mph`);
+    this.updateFlightStatus(flight, to_waypoint, groundspeedMph);
 
     if (to_waypoint < 4) {
       const duration = Math.round(8 / groundspeedMph * 3600);
@@ -231,8 +262,10 @@ export class HomeComponent {
     if (!position?.last_position) return;
     const to_waypoint = flight.calcDistance(Airport.finalWP, position.last_position);
     const groundspeedMph = position.last_position.groundspeed * 1.15078;
+    flight.to_airport = flight.calcDistance(Airport.position, position.last_position);
 
     this.logger.debug(`[CHECK] ${flight.getFlight()} — to_waypoint=${to_waypoint.toFixed(2)} mi, groundspeed=${groundspeedMph.toFixed(0)} mph`);
+    this.updateFlightStatus(flight, to_waypoint, groundspeedMph);
 
     if (to_waypoint > 20) {
       const sleepMs = (to_waypoint - 20) / groundspeedMph * 3600 * 1000;
