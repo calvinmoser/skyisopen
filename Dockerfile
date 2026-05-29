@@ -6,23 +6,17 @@ RUN npm install
 COPY frontend/. .
 RUN npm run build
 
-# Maven (attempt to prevent downloading libraries everytime)
-FROM maven:3.5-jdk-8 as build-maven
+# Spring Boot
+FROM maven:3.9-eclipse-temurin-17 AS build-backend
+WORKDIR /usr/src/app
 COPY backend/pom.xml .
 RUN mvn -B dependency:go-offline
-
-# Spring Boot
-FROM eclipse-temurin:17-jdk-alpine AS build-backend
-WORKDIR /usr/src/app
 COPY backend/. .
-COPY --from=build-maven /root/.m2 /root/.m2
 COPY --from=build-frontend /usr/src/app/backend/target ./target
-RUN ./mvnw package
+RUN mvn package -DskipTests
 
 # Run
 FROM eclipse-temurin:17-jre-alpine
-ARG SKYISOPEN_VERSION
-ENV SKYISOPEN_VERSION ${SKYISOPEN_VERSION}
 WORKDIR /usr/src/app
-COPY --from=build-backend /usr/src/app/target/skyisopen-${SKYISOPEN_VERSION}.jar .
-CMD ["sh", "-c", "java -jar ./skyisopen-${SKYISOPEN_VERSION}.jar"]
+COPY --from=build-backend /usr/src/app/target/skyisopen-*.jar app.jar
+CMD ["java", "-jar", "./app.jar"]

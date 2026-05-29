@@ -4,14 +4,15 @@ import com.techietable.skyisopen.dto.Flight;
 import com.techietable.skyisopen.service.DemoService;
 import com.techietable.skyisopen.service.SkyisOpenServiceLayer;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/aero")
 public class SkyIsOpenRestController {
@@ -24,38 +25,49 @@ public class SkyIsOpenRestController {
 
     @GetMapping("/scheduled_arrivals")
     public synchronized List<Flight> getScheduledFlights(Authentication auth, @RequestParam(required = false) Integer maxPages, HttpServletResponse response) {
+        log.debug("getScheduledFlights: maxPages={}", maxPages);
         response.setHeader("Cache-Control", "no-store");
 
         if (maxPages == null)
             maxPages = 1;
         else if (maxPages < 1 || maxPages > 10)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "max_pages must be between 1 and 10 inclusively");
+            throw new SkyIsExceptional(HttpStatus.BAD_REQUEST, "max_pages must be between 1 and 10 inclusively");
 
         if (auth == null || !auth.isAuthenticated()) return demoService.getArrivals(maxPages);
 
-        return service.scheduledFlights(maxPages);
+        ArrayList<Flight> flights = service.scheduledFlights(maxPages);
+        log.debug("getScheduledFlights: returning {} flights", flights.size());
+        return flights;
+
     }
 
     @GetMapping("/flights/search")
-    public synchronized ArrayList<Flight> searchAreaForPlanes (
+    public synchronized ArrayList<Flight> searchAreaForPlanes(
         @RequestParam(required = false) Integer maxPages)
     {
+        log.debug("searchAreaForPlanes: maxPages={}", maxPages);
+
         if (maxPages == null)
             maxPages = 1;
         else if (maxPages < 1 || maxPages > 10)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "max_pages must be between 1 and 10 inclusively");
+            throw new SkyIsExceptional(HttpStatus.BAD_REQUEST, "max_pages must be between 1 and 10 inclusively");
 
-        return service.searchAreaForPlanes(maxPages);
+        ArrayList<Flight> flights = service.searchAreaForPlanes(maxPages);
+        log.debug("searchAreaForPlanes: returning {} flights", flights.size());
+        return flights;
     }
 
     @GetMapping("/flights/{id}/position")
     public synchronized Flight getFlightPosition(Authentication auth, @PathVariable String id) {
+        log.debug("getFlightPosition: id={}", id);
+
+        if (id == null || id.isEmpty())
+            throw new SkyIsExceptional(HttpStatus.BAD_REQUEST, "id not specified");
 
         if (auth == null || !auth.isAuthenticated()) return demoService.getPosition(id);
 
-        if (id == null || id.isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "id not specified");
-
-        return service.flightPosition(id);
+        Flight flight = service.flightPosition(id);
+        log.debug("getFlightPosition: returning position for id={}", id);
+        return flight;
     }
 }

@@ -1,21 +1,23 @@
 package com.techietable.skyisopen.dao;
 
+import com.techietable.skyisopen.controller.SkyIsExceptional;
 import com.techietable.skyisopen.controller.RequestLimitException;
 import com.techietable.skyisopen.dto.Flight;
 import com.techietable.skyisopen.dto.ScheduledArrivals;
 import com.techietable.skyisopen.dto.SearchFlights;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.time.Duration;
 import java.util.*;
 
+@Slf4j
 @Repository
 @PropertySource("classpath:password.properties")
 public class AeroAPIDao {
@@ -37,9 +39,9 @@ public class AeroAPIDao {
     public UUID requestRequestId(Integer numPages) {
         timestamps.entrySet().removeIf(t -> Duration.between(t.getKey(), Instant.now()).toSeconds() > 60);
         int pagesRetrieved = timestamps.values().stream().reduce(0, Integer::sum);
-        System.out.println(new Date() + " (Pages requested in last minute: " + pagesRetrieved + ")");
+        log.debug("requestRequestId: pages requested in last minute={}", pagesRetrieved);
         if (pagesRetrieved + numPages > 10) {
-            System.out.println(new Date() + " Too many requests in past minute.");
+            log.warn("requestRequestId: rate limit hit, pagesRetrieved={}, numRequested={}", pagesRetrieved, numPages);
             // TODO: Wait instead of throwing exception
             throw new RequestLimitException("Too many requests in past minute.");
         }
@@ -54,9 +56,8 @@ public class AeroAPIDao {
 
     public ArrayList<Flight> scheduledArrivals(UUID requestId, Map<String, Object> params) {
         if (!validRequests.contains(requestId)) {
-            System.out.println(new Date() + " Request ID passed from service layer is not valid.");
-            // TODO: This type of exception should not be thrown in dao
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal request Id not valid.");
+            log.error("scheduledArrivals: invalid requestId={}", requestId);
+            throw new SkyIsExceptional(HttpStatus.INTERNAL_SERVER_ERROR, "Internal request Id not valid.");
         }
 
         try {
@@ -68,16 +69,18 @@ public class AeroAPIDao {
                 params
             );
 
-            if (response.getBody() == null)
-                // TODO: This type of exception should not be thrown in dao
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ERROR: body missing in response. Status Code: " + response.getStatusCode());
+            if (response.getBody() == null) {
+                log.error("scheduledArrivals: empty response body, status={}", response.getStatusCode());
+                throw new SkyIsExceptional(HttpStatus.INTERNAL_SERVER_ERROR, "Empty response body from AeroAPI.");
+            }
 
             addPages(response.getBody().num_pages);
+            log.debug("scheduledArrivals: received {} flights", response.getBody().scheduled_arrivals.size());
 
             return response.getBody().scheduled_arrivals;
         } catch (HttpClientErrorException e) {
-            // TODO: This type of exception should not be thrown in dao
-            throw new ResponseStatusException(e.getStatusCode(), e.getMessage());
+            log.error("scheduledArrivals: AeroAPI returned status={}", e.getStatusCode(), e);
+            throw new SkyIsExceptional(HttpStatus.valueOf(e.getStatusCode().value()), e.getMessage(), e);
         } finally {
             validRequests.remove(requestId);
         }
@@ -85,9 +88,8 @@ public class AeroAPIDao {
 
     public ArrayList<Flight> searchAreaForPlanes(UUID requestId, Map<String, Object> params) {
         if (!validRequests.contains(requestId)) {
-            System.out.println(new Date() + " Request ID passed from service layer is not valid.");
-            // TODO: This type of exception should not be thrown in dao
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal request Id not valid.");
+            log.error("searchAreaForPlanes: invalid requestId={}", requestId);
+            throw new SkyIsExceptional(HttpStatus.INTERNAL_SERVER_ERROR, "Internal request Id not valid.");
         }
         try {
             ResponseEntity<SearchFlights> response = new RestTemplate().exchange(
@@ -98,29 +100,27 @@ public class AeroAPIDao {
                 params
             );
 
-            if (response.getBody() == null)
-                // TODO: This type of exception should not be thrown in dao
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ERROR: body missing in response. Status Code: " + response.getStatusCode());
-
             SearchFlights searchFlights = response.getBody();
 
-            if (searchFlights == null || searchFlights.flights == null)
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Response from AeroAPI is null or has null for flights property. Status Code: " + response.getStatusCode());
+            if (searchFlights == null || searchFlights.flights == null) {
+                log.error("searchAreaForPlanes: empty or null response body, status={}", response.getStatusCode());
+                throw new SkyIsExceptional(HttpStatus.INTERNAL_SERVER_ERROR, "Empty response body from AeroAPI.");
+            }
 
             addPages(searchFlights.num_pages);
-            System.out.println("AeroAPIDao: Found " + searchFlights.flights.size() + " flights!");
+            log.debug("searchAreaForPlanes: received {} flights", searchFlights.flights.size());
 
             return searchFlights.flights;
         } catch (HttpClientErrorException e) {
-            throw new ResponseStatusException(e.getStatusCode(), e.getMessage());
+            log.error("searchAreaForPlanes: AeroAPI returned status={}", e.getStatusCode(), e);
+            throw new SkyIsExceptional(HttpStatus.valueOf(e.getStatusCode().value()), e.getMessage(), e);
         }
     }
 
     public Flight flightPosition(UUID requestId, String id) {
         if (!validRequests.contains(requestId)) {
-            System.out.println(new Date() + " Request ID passed from service layer is not valid.");
-            // TODO: This type of exception should not be thrown in dao
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal request Id not valid.");
+            log.error("flightPosition: invalid requestId={}", requestId);
+            throw new SkyIsExceptional(HttpStatus.INTERNAL_SERVER_ERROR, "Internal request Id not valid.");
         }
 
         String url = FLIGHT_URL + id + "/position";
@@ -128,14 +128,18 @@ public class AeroAPIDao {
         try {
             ResponseEntity<Flight> response = new RestTemplate().exchange(url, HttpMethod.GET, entity, Flight.class);
 
-            if (response.getBody() == null)
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ERROR: body missing in response. Status Code: " + response.getStatusCode());
+            if (response.getBody() == null) {
+                log.error("flightPosition: empty response body, id={}, status={}", id, response.getStatusCode());
+                throw new SkyIsExceptional(HttpStatus.INTERNAL_SERVER_ERROR, "Empty response body from AeroAPI.");
+            }
 
             addPages(1);
+            log.debug("flightPosition: received position for id={}", id);
 
             return response.getBody();
         } catch (HttpClientErrorException e) {
-            throw new ResponseStatusException(e.getStatusCode(), e.getMessage());
+            log.error("flightPosition: AeroAPI returned status={}, id={}", e.getStatusCode(), id, e);
+            throw new SkyIsExceptional(HttpStatus.valueOf(e.getStatusCode().value()), e.getMessage(), e);
         } finally {
             validRequests.remove(requestId);
         }
