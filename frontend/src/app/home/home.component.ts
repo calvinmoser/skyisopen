@@ -11,6 +11,7 @@ import { AuthService } from '../services/auth.service';
 import { LoginDialogComponent } from '../login-dialog/login-dialog.component';
 import { Flight, Position } from '../model/flight';
 import { Airport } from '../model/airport';
+import { NGXLogger } from 'ngx-logger';
 
 @Component({
   selector: 'app-home',
@@ -45,7 +46,7 @@ export class HomeComponent {
   private nearFlights: Set<string> = new Set();
   private nearPollInterval: any;
 
-  constructor(private aeroAPIservice: AeroAPIService, public authService: AuthService, private dialog: MatDialog, private snackBar: MatSnackBar) {}
+  constructor(private aeroAPIservice: AeroAPIService, public authService: AuthService, private dialog: MatDialog, private snackBar: MatSnackBar, private logger: NGXLogger) {}
 
   ngOnInit(): void {
     if (window.innerWidth < 365) {
@@ -91,6 +92,7 @@ export class HomeComponent {
   }
 
   identifyAircraft(){
+    this.logger.debug('[IDENTIFY] Button pressed');
     this.aeroAPIservice.getScheduledArrivals(this.numPages)
       .subscribe(async flights => {
         flights.map(f => {f.calcInitialDistance()});
@@ -103,28 +105,43 @@ export class HomeComponent {
         this.dataSource.data = flights;
         var foundOne = false;
         flights = flights.sort((a, b) => {return a.to_airport - b.to_airport});
+        this.logger.debug(`[IDENTIFY] Checking ${flights.length} flights sorted by to_airport`);
         for (var i = 0; i < flights.length; i++) {
           var flight = flights[i];
           var position = await this.aeroAPIservice.getFlightPosition(flight.fa_flight_id);
 
-          if (typeof position == "undefined" || position.last_position == null) continue;
+          if (typeof position == "undefined" || position.last_position == null) {
+            this.logger.debug(`[IDENTIFY] [${i}] ${flight.fa_flight_id} — no position, skipping`);
+            continue;
+          }
 
           flight.last_position = position.last_position;
+          this.logger.debug(`[IDENTIFY] [${i}] ${flight.fa_flight_id} — position: lat=${position.last_position.latitude}, lng=${position.last_position.longitude}`);
 
           var to_waypoint = flight.calcDistance(Airport.finalWP, position.last_position);
           flight.to_waypoint = to_waypoint;
 
           var to_airport = flight.calcDistance(Airport.position, position.last_position);
+          this.logger.debug(`[IDENTIFY] [${i}] ${flight.fa_flight_id} — to_airport BEFORE: ${flight.to_airport}`);
           flight.to_airport = to_airport;
+          this.logger.debug(`[IDENTIFY] [${i}] ${flight.fa_flight_id} — to_airport AFTER: ${flight.to_airport}`);
+          this.dataSource.data = this.flights;
+
+          this.logger.debug(`[IDENTIFY] [${i}] ${flight.fa_flight_id} — to_waypoint: ${to_waypoint.toFixed(2)} mi, to_airport: ${to_airport.toFixed(2)} mi`);
 
           if (to_waypoint < 2) {
+            this.logger.debug(`[IDENTIFY] [${i}] ${flight.fa_flight_id} — IN TARGET ZONE (to_waypoint < 2), setting color=target`);
             flight.color = "target"; // In target zone
             setTimeout(() => {flights.map((f) => {f.color = "mat-row"; return f;})}, 10000);
             foundOne = true;
           }
 
-          if (i > 5 || (foundOne && to_waypoint > 10)) return; // Out of bounds
+          if (i > 5 || (foundOne && to_waypoint > 10)) {
+            this.logger.debug(`[IDENTIFY] Stopping early — i=${i}, foundOne=${foundOne}, to_waypoint=${to_waypoint.toFixed(2)}`);
+            return;
+          }
         }
+        this.logger.debug('[IDENTIFY] Finished all flights, foundOne=' + foundOne);
       });
   }
 
@@ -146,11 +163,15 @@ export class HomeComponent {
   removeFlight(flight: Flight) {};
 
   triggerPlane(duration: number = 10, to_waypoint: number = 4) {
-    if (this.planeFlyover) return;
+    if (this.planeFlyover) {
+      this.logger.debug(`[FLYOVER] triggerPlane called but animation already active, skipping (to_waypoint=${to_waypoint.toFixed(2)}, duration=${duration}s)`);
+      return;
+    }
     this.flyoverDuration = duration;
     const elapsed = (4 - Math.min(to_waypoint, 4)) / 8 * duration;
     this.flyoverDelay = -elapsed;
     const remaining = duration - elapsed;
+    this.logger.debug(`[FLYOVER] Triggering animation — to_waypoint=${to_waypoint.toFixed(2)} mi, duration=${duration}s, elapsed=${elapsed.toFixed(1)}s, remaining=${remaining.toFixed(1)}s`);
     this.planeFlyover = true;
     setTimeout(() => this.planeFlyover = false, remaining * 1000);
   }
@@ -173,19 +194,28 @@ export class HomeComponent {
     const to_waypoint = flight.calcDistance(Airport.finalWP, lastPosition);
     const groundspeedMph = lastPosition.groundspeed * 1.15078;
 
+    this.logger.debug(`[SCHEDULE] ${flight.fa_flight_id} — to_waypoint=${to_waypoint.toFixed(2)} mi, groundspeed=${groundspeedMph.toFixed(0)} mph`);
+
     if (to_waypoint < 4) {
       const duration = Math.round(8 / groundspeedMph * 3600);
+      this.logger.debug(`[SCHEDULE] ${flight.fa_flight_id} — IN RANGE (<4 mi), triggering animation (duration=${duration}s)`);
       this.triggerPlane(duration, to_waypoint);
     } else if (to_waypoint < 20) {
+      this.logger.debug(`[SCHEDULE] ${flight.fa_flight_id} — NEAR (<20 mi), added to nearFlights poll`);
       this.nearFlights.add(flight.fa_flight_id);
     } else {
       const sleepMs = (to_waypoint - 20) / groundspeedMph * 3600 * 1000;
+      this.logger.debug(`[SCHEDULE] ${flight.fa_flight_id} — FAR (${to_waypoint.toFixed(2)} mi), sleeping ${(sleepMs/60000).toFixed(1)} min`);
       setTimeout(() => this.wakeUpFlight(flight.fa_flight_id), sleepMs);
     }
   }
 
   async wakeUpFlight(fa_flight_id: string) {
-    if (!this.flights.find(f => f.fa_flight_id === fa_flight_id)) return;
+    if (!this.flights.find(f => f.fa_flight_id === fa_flight_id)) {
+      this.logger.debug(`[WAKEUP] ${fa_flight_id} — no longer in flights list, ignoring`);
+      return;
+    }
+    this.logger.debug(`[WAKEUP] ${fa_flight_id} — woke up, adding to nearFlights`);
     this.nearFlights.add(fa_flight_id);
     await this.checkFlight(fa_flight_id);
   }
@@ -208,13 +238,19 @@ export class HomeComponent {
     const to_waypoint = flight.calcDistance(Airport.finalWP, position.last_position);
     const groundspeedMph = position.last_position.groundspeed * 1.15078;
 
+    this.logger.debug(`[CHECK] ${fa_flight_id} — to_waypoint=${to_waypoint.toFixed(2)} mi, groundspeed=${groundspeedMph.toFixed(0)} mph`);
+
     if (to_waypoint > 20) {
-      this.nearFlights.delete(fa_flight_id);
       const sleepMs = (to_waypoint - 20) / groundspeedMph * 3600 * 1000;
+      this.logger.debug(`[CHECK] ${fa_flight_id} — moved FAR (>20 mi), removing from nearFlights, sleeping ${(sleepMs/60000).toFixed(1)} min`);
+      this.nearFlights.delete(fa_flight_id);
       setTimeout(() => this.wakeUpFlight(fa_flight_id), sleepMs);
     } else if (to_waypoint < 4) {
       const duration = Math.round(8 / groundspeedMph * 3600);
+      this.logger.debug(`[CHECK] ${fa_flight_id} — IN RANGE (<4 mi), triggering animation (duration=${duration}s)`);
       this.triggerPlane(duration, to_waypoint);
+    } else {
+      this.logger.debug(`[CHECK] ${fa_flight_id} — still near (4–20 mi), staying in nearFlights`);
     }
   }
 
