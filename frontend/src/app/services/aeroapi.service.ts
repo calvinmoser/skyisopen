@@ -31,12 +31,13 @@ export class AeroAPIService{
     var flight_position_url = "/aero/flights/" + fa_flight_id + "/position?t=" + Date.now();
 
     const tag = this.authService.isAuthenticated() ? '' : ' (DEMO)';
-    this.logger.debug(`getFlightPosition${tag}: requesting position for ${fa_flight_id}`);
+    const flightLabel = fa_flight_id.split('-')[0];
+    this.logger.debug(`getFlightPosition${tag}: requesting position for ${flightLabel}`);
 
     return this.httpClient.get<Flight>(flight_position_url)
       .pipe(
         map(last_position => new Flight(last_position)),
-        tap(flight => this.logger.debug(`getFlightPosition${tag}: received position for ${fa_flight_id}`))
+        tap(flight => this.logger.debug(`getFlightPosition${tag}: received position for ${flightLabel}`))
       ).toPromise();
   }
 

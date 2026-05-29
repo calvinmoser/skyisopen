@@ -111,33 +111,32 @@ export class HomeComponent {
           var position = await this.aeroAPIservice.getFlightPosition(flight.fa_flight_id);
 
           if (typeof position == "undefined" || position.last_position == null) {
-            this.logger.debug(`[IDENTIFY] [${i}] ${flight.fa_flight_id} — no position, skipping`);
+            this.logger.debug(`[IDENTIFY] [${i}] ${flight.getFlight()} — no position, skipping`);
             continue;
           }
 
           flight.last_position = position.last_position;
-          this.logger.debug(`[IDENTIFY] [${i}] ${flight.fa_flight_id} — position: lat=${position.last_position.latitude}, lng=${position.last_position.longitude}`);
 
           var to_waypoint = flight.calcDistance(Airport.finalWP, position.last_position);
           flight.to_waypoint = to_waypoint;
 
           var to_airport = flight.calcDistance(Airport.position, position.last_position);
-          this.logger.debug(`[IDENTIFY] [${i}] ${flight.fa_flight_id} — to_airport BEFORE: ${flight.to_airport}`);
+          this.logger.debug(`[IDENTIFY] [${i}] ${flight.getFlight()} — to_airport BEFORE: ${flight.to_airport}`);
           flight.to_airport = to_airport;
-          this.logger.debug(`[IDENTIFY] [${i}] ${flight.fa_flight_id} — to_airport AFTER: ${flight.to_airport}`);
+          this.logger.debug(`[IDENTIFY] [${i}] ${flight.getFlight()} — to_airport AFTER: ${flight.to_airport}`);
           this.dataSource.data = this.flights;
 
-          this.logger.debug(`[IDENTIFY] [${i}] ${flight.fa_flight_id} — to_waypoint: ${to_waypoint.toFixed(2)} mi, to_airport: ${to_airport.toFixed(2)} mi`);
+          this.logger.debug(`[IDENTIFY] [${i}] ${flight.getFlight()} — to_waypoint: ${to_waypoint.toFixed(2)} mi, to_airport: ${to_airport.toFixed(2)} mi`);
 
           if (to_waypoint < 2) {
-            this.logger.debug(`[IDENTIFY] [${i}] ${flight.fa_flight_id} — IN TARGET ZONE (to_waypoint < 2), setting color=target`);
+            this.logger.debug(`[IDENTIFY] [${i}] ${flight.getFlight()} — IN TARGET ZONE (to_waypoint < 2), setting color=target`);
             flight.color = "target"; // In target zone
             setTimeout(() => {flights.map((f) => {f.color = "mat-row"; return f;})}, 10000);
             foundOne = true;
           }
 
           if (i > 5 || (foundOne && to_waypoint > 10)) {
-            this.logger.debug(`[IDENTIFY] Stopping early — i=${i}, foundOne=${foundOne}, to_waypoint=${to_waypoint.toFixed(2)}`);
+            this.logger.debug(`[IDENTIFY] Stopping early — i=${i}, foundOne=${foundOne}, ${flight.getFlight()} to_waypoint=${to_waypoint.toFixed(2)}`);
             return;
           }
         }
@@ -194,29 +193,30 @@ export class HomeComponent {
     const to_waypoint = flight.calcDistance(Airport.finalWP, lastPosition);
     const groundspeedMph = lastPosition.groundspeed * 1.15078;
 
-    this.logger.debug(`[SCHEDULE] ${flight.fa_flight_id} — to_waypoint=${to_waypoint.toFixed(2)} mi, groundspeed=${groundspeedMph.toFixed(0)} mph`);
+    this.logger.debug(`[SCHEDULE] ${flight.getFlight()} — to_waypoint=${to_waypoint.toFixed(2)} mi, groundspeed=${groundspeedMph.toFixed(0)} mph`);
 
     if (to_waypoint < 4) {
       const duration = Math.round(8 / groundspeedMph * 3600);
-      this.logger.debug(`[SCHEDULE] ${flight.fa_flight_id} — IN RANGE (<4 mi), triggering animation (duration=${duration}s)`);
+      this.logger.debug(`[SCHEDULE] ${flight.getFlight()} — IN RANGE (<4 mi), triggering animation (duration=${duration}s)`);
       this.triggerPlane(duration, to_waypoint);
     } else if (to_waypoint < 20) {
       const sleepMs = (to_waypoint - 2) / groundspeedMph * 3600 * 1000;
-      this.logger.debug(`[SCHEDULE] ${flight.fa_flight_id} — NEAR (${to_waypoint.toFixed(2)} mi), sleeping ${(sleepMs/60000).toFixed(1)} min until ~2 mi`);
+      this.logger.debug(`[SCHEDULE] ${flight.getFlight()} — NEAR (${to_waypoint.toFixed(2)} mi), sleeping ${(sleepMs/60000).toFixed(1)} min until ~2 mi`);
       setTimeout(() => this.wakeUpFlight(flight.fa_flight_id), sleepMs);
     } else {
       const sleepMs = (to_waypoint - 20) / groundspeedMph * 3600 * 1000;
-      this.logger.debug(`[SCHEDULE] ${flight.fa_flight_id} — FAR (${to_waypoint.toFixed(2)} mi), sleeping ${(sleepMs/60000).toFixed(1)} min`);
+      this.logger.debug(`[SCHEDULE] ${flight.getFlight()} — FAR (${to_waypoint.toFixed(2)} mi), sleeping ${(sleepMs/60000).toFixed(1)} min`);
       setTimeout(() => this.wakeUpFlight(flight.fa_flight_id), sleepMs);
     }
   }
 
   async wakeUpFlight(fa_flight_id: string) {
-    if (!this.flights.find(f => f.fa_flight_id === fa_flight_id)) {
+    const flight = this.flights.find(f => f.fa_flight_id === fa_flight_id);
+    if (!flight) {
       this.logger.debug(`[WAKEUP] ${fa_flight_id} — no longer in flights list, ignoring`);
       return;
     }
-    this.logger.debug(`[WAKEUP] ${fa_flight_id} — woke up, adding to nearFlights`);
+    this.logger.debug(`[WAKEUP] ${flight.getFlight()} — woke up, adding to nearFlights`);
     this.nearFlights.add(fa_flight_id);
     await this.checkFlight(fa_flight_id);
   }
@@ -239,20 +239,20 @@ export class HomeComponent {
     const to_waypoint = flight.calcDistance(Airport.finalWP, position.last_position);
     const groundspeedMph = position.last_position.groundspeed * 1.15078;
 
-    this.logger.debug(`[CHECK] ${fa_flight_id} — to_waypoint=${to_waypoint.toFixed(2)} mi, groundspeed=${groundspeedMph.toFixed(0)} mph`);
+    this.logger.debug(`[CHECK] ${flight.getFlight()} — to_waypoint=${to_waypoint.toFixed(2)} mi, groundspeed=${groundspeedMph.toFixed(0)} mph`);
 
     if (to_waypoint > 20) {
       const sleepMs = (to_waypoint - 20) / groundspeedMph * 3600 * 1000;
-      this.logger.debug(`[CHECK] ${fa_flight_id} — moved FAR (>20 mi), removing from nearFlights, sleeping ${(sleepMs/60000).toFixed(1)} min`);
+      this.logger.debug(`[CHECK] ${flight.getFlight()} — moved FAR (>20 mi), removing from nearFlights, sleeping ${(sleepMs/60000).toFixed(1)} min`);
       this.nearFlights.delete(fa_flight_id);
       setTimeout(() => this.wakeUpFlight(fa_flight_id), sleepMs);
     } else if (to_waypoint < 4) {
       const duration = Math.round(8 / groundspeedMph * 3600);
-      this.logger.debug(`[CHECK] ${fa_flight_id} — IN RANGE (<4 mi), triggering animation (duration=${duration}s)`);
+      this.logger.debug(`[CHECK] ${flight.getFlight()} — IN RANGE (<4 mi), triggering animation (duration=${duration}s)`);
       this.triggerPlane(duration, to_waypoint);
     } else {
       const sleepMs = (to_waypoint - 2) / groundspeedMph * 3600 * 1000;
-      this.logger.debug(`[CHECK] ${fa_flight_id} — still near (${to_waypoint.toFixed(2)} mi), sleeping ${(sleepMs/60000).toFixed(1)} min until ~2 mi`);
+      this.logger.debug(`[CHECK] ${flight.getFlight()} — still near (${to_waypoint.toFixed(2)} mi), sleeping ${(sleepMs/60000).toFixed(1)} min until ~2 mi`);
       setTimeout(() => this.wakeUpFlight(fa_flight_id), sleepMs);
     }
   }
