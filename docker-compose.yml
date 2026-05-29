@@ -1,13 +1,11 @@
-# docker-compose up --build -d
+# docker compose up --build -d
 version: '3.9'
 services:
   skyisopen:
+    container_name: skyisopen
     build:
       context: "."
-      args:
-        SKYISOPEN_VERSION: 0.0.2-SNAPSHOT
     image: skyisopen
-    container_name: skyisopen
     hostname: skyisopen
     ports:
     - '55556:8080'
