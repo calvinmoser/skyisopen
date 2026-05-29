@@ -28,7 +28,7 @@ export class AeroAPIService{
   }
 
   getFlightPosition(fa_flight_id: string): Promise<Flight | undefined> {
-    var flight_position_url = "/aero/flights/" + fa_flight_id + "/position";
+    var flight_position_url = "/aero/flights/" + fa_flight_id + "/position?t=" + Date.now();
 
     const tag = this.authService.isAuthenticated() ? '' : ' (DEMO)';
     this.logger.debug(`getFlightPosition${tag}: requesting position for ${fa_flight_id}`);
