@@ -39,9 +39,7 @@ export class HomeComponent {
 
   easterEgg: boolean = false;
   easterEggCount: number = 0;
-  planeFlyover: boolean = false;
-  flyoverDuration: number = 10;
-  flyoverDelay: number = 0;
+  flyovers: { duration: number, delay: number }[] = [];
 
   private nearFlights: Set<string> = new Set();
   private nearPollInterval: any;
@@ -162,17 +160,12 @@ export class HomeComponent {
   removeFlight(flight: Flight) {};
 
   triggerPlane(duration: number = 10, to_waypoint: number = 4) {
-    if (this.planeFlyover) {
-      this.logger.debug(`[FLYOVER] triggerPlane called but animation already active, skipping (to_waypoint=${to_waypoint.toFixed(2)}, duration=${duration}s)`);
-      return;
-    }
-    this.flyoverDuration = duration;
     const elapsed = (4 - Math.min(to_waypoint, 4)) / 8 * duration;
-    this.flyoverDelay = -elapsed;
     const remaining = duration - elapsed;
     this.logger.debug(`[FLYOVER] Triggering animation — to_waypoint=${to_waypoint.toFixed(2)} mi, duration=${duration}s, elapsed=${elapsed.toFixed(1)}s, remaining=${remaining.toFixed(1)}s`);
-    this.planeFlyover = true;
-    setTimeout(() => this.planeFlyover = false, remaining * 1000);
+    const flyover = { duration, delay: -elapsed };
+    this.flyovers.push(flyover);
+    setTimeout(() => this.flyovers = this.flyovers.filter(f => f !== flyover), remaining * 1000);
   }
 
   async initFlyoverTracking() {
