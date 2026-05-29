@@ -33,7 +33,12 @@ public class SkyIsOpenRestController {
         else if (maxPages < 1 || maxPages > 10)
             throw new SkyIsExceptional(HttpStatus.BAD_REQUEST, "max_pages must be between 1 and 10 inclusively");
 
-        if (auth == null || !auth.isAuthenticated()) return demoService.getArrivals(maxPages);
+        if (auth == null || !auth.isAuthenticated()) {
+            log.debug("getScheduledFlights (DEMO): unauthenticated, routing to demo");
+            List<Flight> demoFlights = demoService.getArrivals(maxPages);
+            log.debug("getScheduledFlights (DEMO): returning {} demo flights", demoFlights.size());
+            return demoFlights;
+        }
 
         ArrayList<Flight> flights = service.scheduledFlights(maxPages);
         log.debug("getScheduledFlights: returning {} flights", flights.size());
@@ -64,7 +69,12 @@ public class SkyIsOpenRestController {
         if (id == null || id.isEmpty())
             throw new SkyIsExceptional(HttpStatus.BAD_REQUEST, "id not specified");
 
-        if (auth == null || !auth.isAuthenticated()) return demoService.getPosition(id);
+        if (auth == null || !auth.isAuthenticated()) {
+            log.debug("getFlightPosition (DEMO): unauthenticated, routing to demo");
+            Flight demoFlight = demoService.getPosition(id);
+            log.debug("getFlightPosition (DEMO): returning demo position for id={}, found={}", id, demoFlight != null);
+            return demoFlight;
+        }
 
         Flight flight = service.flightPosition(id);
         log.debug("getFlightPosition: returning position for id={}", id);

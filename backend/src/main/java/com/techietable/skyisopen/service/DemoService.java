@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.techietable.skyisopen.collector.FlightTrack;
 import com.techietable.skyisopen.dto.Flight;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class DemoService {
 
@@ -28,16 +30,16 @@ public class DemoService {
         try {
             arrivals = mapper.readValue(new File("backend/data/arrivals.json"),
                 mapper.getTypeFactory().constructCollectionType(List.class, Flight.class));
-            System.out.println("DemoService: Loaded " + arrivals.size() + " arrivals.");
+            log.info("load: loaded {} arrivals", arrivals.size());
         } catch (Exception e) {
-            System.out.println("DemoService: Failed to load arrivals - " + e.getMessage());
+            log.error("load: failed to load arrivals", e);
         }
         try {
             trackHistory = mapper.readValue(new File("backend/data/track-history.json"),
                 new TypeReference<Map<String, FlightTrack>>() {});
-            System.out.println("DemoService: Loaded " + trackHistory.size() + " tracks.");
+            log.info("load: loaded {} tracks", trackHistory.size());
         } catch (Exception e) {
-            System.out.println("DemoService: Failed to load track history - " + e.getMessage());
+            log.error("load: failed to load track history", e);
         }
 
         for (Map.Entry<String, FlightTrack> entry : trackHistory.entrySet()) {
@@ -53,7 +55,7 @@ public class DemoService {
             if (flight.estimated_on != null)
                 originalEstimatedOn.put(flight.fa_flight_id, flight.estimated_on.getTime());
         }
-        System.out.println("DemoService: Loop duration = " + LOOP_DURATION / 60000 + " min");
+        log.info("load: loop duration={}min", LOOP_DURATION / 60000);
     }
 
     private long virtualNow() {
@@ -61,6 +63,7 @@ public class DemoService {
     }
 
     public List<Flight> getArrivals(int maxPages) {
+        log.debug("getArrivals: maxPages={}", maxPages);
         long vNow = virtualNow();
         int limit = maxPages * 15;
         for (Flight flight : arrivals) {
@@ -84,15 +87,21 @@ public class DemoService {
             long virtualArrival = lastTs <= vNow ? lastTs + LOOP_DURATION : lastTs;
             flight.estimated_on = new Date(System.currentTimeMillis() + (virtualArrival - vNow));
         }
-        return arrivals.stream()
+        List<Flight> result = arrivals.stream()
             .sorted(Comparator.comparing(f -> f.estimated_on != null ? f.estimated_on : new Date(Long.MAX_VALUE)))
             .limit(limit)
             .collect(Collectors.toList());
+        log.debug("getArrivals: returning {} flights", result.size());
+        return result;
     }
 
     public Flight getPosition(String faFlightId) {
+        log.debug("getPosition: id={}", faFlightId);
         FlightTrack track = trackHistory.get(faFlightId);
-        if (track == null || track.positions == null || track.positions.isEmpty()) return null;
+        if (track == null || track.positions == null || track.positions.isEmpty()) {
+            log.debug("getPosition: no track found for id={}", faFlightId);
+            return null;
+        }
 
         List<FlightTrack.Position> positions = track.positions.stream()
             .filter(p -> p.latitude != 0 && p.longitude != 0)
