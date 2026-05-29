@@ -2,6 +2,7 @@ package com.techietable.skyisopen.service;
 
 import com.techietable.skyisopen.dto.Flight;
 import com.techietable.skyisopen.dao.AeroAPIDao;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
+@Slf4j
 @Service
 public class SkyisOpenServiceLayer {
 
@@ -20,7 +22,7 @@ public class SkyisOpenServiceLayer {
 
         Map<String, Object> params = new HashMap<>();
         params.put("max_pages", maxPages);
-        System.out.println(new Date() + " Retrieving scheduled flights with max pages = " + maxPages);
+        log.debug("scheduledFlights: maxPages={}", maxPages);
         return dao.scheduledArrivals(requestId, params);
     }
 
@@ -30,7 +32,7 @@ public class SkyisOpenServiceLayer {
         Map<String, Object> params = new HashMap<>();
         params.put("max_pages", maxPages);
         params.put("query", this.generateQuery());
-        System.out.println(new Date() + " query: " + params.get("query"));
+        log.debug("searchAreaForPlanes: query={}", params.get("query"));
         return dao.searchAreaForPlanes(requestId, params);
     }
 
@@ -46,7 +48,7 @@ public class SkyisOpenServiceLayer {
     public Flight flightPosition(String id) {
         UUID requestId = dao.requestRequestId(1);
 
-        System.out.println(new Date() + " Retrieving position for flight with id " + id);
+        log.debug("flightPosition: id={}", id);
         Flight flight = dao.flightPosition(requestId, id);
 
         if (flight == null) {
