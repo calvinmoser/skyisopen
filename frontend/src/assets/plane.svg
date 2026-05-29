@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50">
+  <!-- Fuselage -->
+  <ellipse cx="52" cy="25" rx="40" ry="7" fill="white"/>
+  <!-- Nose (pointing left) -->
+  <path d="M 15,25 Q 4,24 0,25 Q 4,26 15,25 Z" fill="white"/>
+  <!-- Main wings -->
+  <polygon points="58,25 70,5 38,23 38,27 70,45" fill="white"/>
+  <!-- Horizontal stabilizer -->
+  <polygon points="87,25 93,18 78,24 78,26 93,32" fill="white"/>
+  <!-- Vertical stabilizer -->
+  <polygon points="87,25 84,14 78,22 78,25" fill="white"/>
+</svg>

@@ -1,8 +1,13 @@
 <mat-toolbar class="header mat-elevation-z8" [class.header-animations]="easterEgg">
   <img src="/assets/logo.png" alt="logo" aria-hidden="true" />
   <span class="spacer"></span>
-  <span style="text-overflow: ellipsis; white-space: nowrap;overflow: hidden;" >{{ title }}</span>
+  <span style="text-overflow: ellipsis; white-space: nowrap;overflow: hidden; cursor: pointer;" (click)="triggerPlane()">{{ title }}</span>
+  <span class="spacer-flex"></span>
+  <span *ngIf="!authService.isAuthenticated()" class="demo-badge">DEMO</span>
+  <button mat-button *ngIf="!authService.isAuthenticated()" (click)="openLogin()">Login</button>
+  <button mat-button *ngIf="authService.isAuthenticated()" (click)="logout()">Logout</button>
 </mat-toolbar>
+<img *ngIf="planeFlyover" src="/assets/plane.svg" class="plane-flyover" [style.animation-duration]="flyoverDuration + 's'" [style.animation-delay]="flyoverDelay + 's'" alt="plane" />
 <div class="sec-toolbar left-angle"></div>
 <div class="sec-toolbar right-angle"></div>
 <div class="sec-toolbar middle-fill"></div>
@@ -78,7 +83,11 @@
       <td mat-cell *matCellDef="let flight" (dblclick)="removeFlight(flight)">X</td>
     </ng-container>
 
+    <ng-container matColumnDef="demo-notice">
+      <th mat-header-cell *matHeaderCellDef [attr.colspan]="displayedColumns.length" class="demo-notice-cell">NOT LIVE DATA</th>
+    </ng-container>
     <tr mat-header-row class="mat-header-row" *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-header-row *matHeaderRowDef="['demo-notice']" [hidden]="authService.isAuthenticated()" class="demo-notice-row"></tr>
     <tr mat-row *matRowDef="let emprow; let flight; columns: displayedColumns" class="mat-elevation-z1" [class]="flight.color"></tr>
   </table>
 </div>

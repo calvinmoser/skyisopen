@@ -2,21 +2,30 @@
 @import "../../styles.scss";
 
 mat-toolbar.header {
-  background-color: mat.get-theme-color($theme, primary, lighter);
-  color: mat.get-theme-color($theme, primary, default);
+  background-color: mat.get-theme-color($dark-theme, primary, lighter);
+  color: mat.get-theme-color($dark-theme, primary, default);
   position: relative;
   z-index: 10;
   width:100vw;
   height:60px;
   transform: translate(-8px, -8px);
+
+  button {
+    border: none;
+    outline: none;
+  }
 }
 
 .spacer {
   width: 16px;
 }
 
+.spacer-flex {
+  flex: 1;
+}
+
 .sec-toolbar {
-  background-color: mat.get-theme-color($theme, primary, 600);
+  background-color: mat.get-theme-color($dark-theme, primary, 600);
   position: absolute;
   z-index: 0;
   display: flex;
@@ -55,8 +64,34 @@ mat-toolbar.header {
   z-index: 5;
 }
 
+.demo-notice-row {
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+.demo-notice-cell {
+  text-align: center !important;
+  font-size: 11px !important;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #ffeb3b !important;
+  padding: 6px 0 0 !important;
+  border-bottom: none !important;
+}
+
+.demo-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background-color: #ffeb3b;
+  color: #000;
+  margin-right: 8px;
+}
+
 .mat-mdc-raised-button.identify {
-  background-color: mat.get-theme-color($theme, primary, 600);
+  background-color: mat.get-theme-color($dark-theme, primary, 600);
 }
 
 .container {
@@ -71,30 +106,30 @@ mat-toolbar.header {
 }
 
 tr.mat-header-row {
-  background-color: mat.get-theme-color($theme, primary, default);
-  color: mat.get-theme-color($theme, primary, lighter);
+  background-color: mat.get-theme-color($dark-theme, primary, default);
+  color: mat.get-theme-color($dark-theme, primary, lighter);
   position: relative;
   z-index: 5;
 }
 
 td {
-  color: mat.get-theme-color($theme, primary, lighter);
+  color: mat.get-theme-color($dark-theme, primary, lighter);
 }
 
 .target {
   font-weight: bold;
-  background-color: mat.get-theme-color($theme, primary, A100);
-  color: mat.get-theme-color($theme, primary, A100-contrast);
+  background-color: mat.get-theme-color($dark-theme, primary, A100);
+  color: mat.get-theme-color($dark-theme, primary, A100-contrast);
 }
 
 .track {
   position: relative;
   z-index:4;
-  box-shadow: 0px 1px 2px mat.get-theme-color($theme, primary, default);
+  box-shadow: 0px 1px 2px mat.get-theme-color($dark-theme, primary, default);
 }
 
 .mat-mdc-row:hover .mat-mdc-cell {
-   background-color: mat.get-theme-color($theme, background, hover);
+   background-color: mat.get-theme-color($dark-theme, background, hover);
 }
 
 .mat-column-type {
@@ -108,6 +143,21 @@ td {
   width: 30%;
   margin-left: 35%;
   margin-right: 35%;
+}
+
+@keyframes flyover {
+  from { left: 110vw; }
+  to   { left: -120px; }
+}
+
+.plane-flyover {
+  position: fixed;
+  top: 68px;
+  width: 100px;
+  height: 50px;
+  z-index: 20;
+  pointer-events: none;
+  animation: flyover 10s linear forwards;
 }
 
 /* Just fill up screen if max-width <= 1024 */

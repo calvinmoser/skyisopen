@@ -9,13 +9,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import static org.springframework.security.config.Customizer.withDefaults;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
@@ -24,11 +21,15 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests((requests) -> requests
+                .requestMatchers("/aero/scheduled_arrivals", "/aero/flights/*/position").permitAll()
                 .requestMatchers("/aero/**").authenticated()
                 .anyRequest().permitAll()
                 )
-            .httpBasic(withDefaults());
+            .httpBasic(basic -> basic.authenticationEntryPoint(
+                (request, response, ex) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
+            ));
 
         return http.build();
     }

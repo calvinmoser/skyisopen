@@ -3,18 +3,19 @@ import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTabsModule } from '@angular/material/tabs';
 import { AeroAPIService } from '../services/aeroapi.service';
+import { AuthService } from '../services/auth.service';
+import { LoginDialogComponent } from '../login-dialog/login-dialog.component';
 import { Flight, Position } from '../model/flight';
 import { Airport } from '../model/airport';
-
-// NOTE: Perhaps since this is a standalone component, the BrowserAnimationsModule needs to be added
-//  as a provider in app.config: provideAnimations();
-import { MatTabsModule } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MatToolbarModule, MatButtonModule, MatTableModule, CommonModule, MatTabsModule],
+  imports: [MatToolbarModule, MatButtonModule, MatTableModule, CommonModule, MatTabsModule, LoginDialogComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss', '../animations/home.animations.scss']
 })
@@ -24,7 +25,7 @@ export class HomeComponent {
   title: string = "Indianapolis International Airport";
   dataSource = new MatTableDataSource<Flight>([]);
   flightMap: Map <String, Flight> = new Map<String, Flight>();
-  numPages = 1;
+  numPages = 2;
   totalCalls: number = 0;
   displayedColumns: string[] = [ /*"fa_flight_id",*/ "flight", "aircraft_type", /*"scheduled_on",*/ "origin", /*"groundspeed",*/
     /*"altitude", "angle",*/ "to_airport", /*"to_waypoint", "estimated", "next_update", "updated", "remove"*/ "estimated_on"];
@@ -37,8 +38,14 @@ export class HomeComponent {
 
   easterEgg: boolean = false;
   easterEggCount: number = 0;
+  planeFlyover: boolean = false;
+  flyoverDuration: number = 10;
+  flyoverDelay: number = 0;
 
-  constructor(private aeroAPIservice: AeroAPIService) {}
+  private nearFlights: Set<string> = new Set();
+  private nearPollInterval: any;
+
+  constructor(private aeroAPIservice: AeroAPIService, public authService: AuthService, private dialog: MatDialog, private snackBar: MatSnackBar) {}
 
   ngOnInit(): void {
     if (window.innerWidth < 365) {
@@ -47,14 +54,14 @@ export class HomeComponent {
       this.title = "Indianapolis International"
     }
     if (window.innerWidth > window.innerHeight && window.innerWidth >- 1024) {
-      this.numPages = 4;
+      this.numPages = 1;
     }
     this.getScheduledArrivals(this.numPages);
   }
 
   getScheduledArrivals(maxPages: number) {
     this.aeroAPIservice.getScheduledArrivals(maxPages)
-      .subscribe(flights => {
+      .subscribe({ next: (flights) => {
         for (var flight of flights) {
           flight.calcInitialDistance();
 
@@ -76,13 +83,22 @@ export class HomeComponent {
         this.flights = flights;
         this.dataSource.data = flights;
         this.typeDataSource.data = [...this.aircraftTypes].sort((a, b) => a[0].valueOf().localeCompare(b[0].valueOf()));
-      });
+        if (!this.authService.isAuthenticated()) this.initFlyoverTracking();
+      }, error: (err) => {
+        console.error('getScheduledArrivals failed:', err);
+        this.snackBar.open('Failed to load flights.', undefined, { duration: 4000, verticalPosition: 'top' });
+      }});
   }
 
   identifyAircraft(){
-    this.aeroAPIservice.getScheduledArrivals(4)
+    this.aeroAPIservice.getScheduledArrivals(this.numPages)
       .subscribe(async flights => {
         flights.map(f => {f.calcInitialDistance()});
+        for (const flight of flights) {
+          for (const type of this.bigPlanes) {
+            if (flight.aircraft_type.startsWith(type)) flight.color = "track";
+          }
+        }
         this.flights = flights;
         this.dataSource.data = flights;
         var foundOne = false;
@@ -112,7 +128,95 @@ export class HomeComponent {
       });
   }
 
+  openLogin() {
+    const ref = this.dialog.open(LoginDialogComponent);
+    ref.afterClosed().subscribe(result => {
+      if (result) {
+        this.authService.login(result.username, result.password);
+        this.getScheduledArrivals(this.numPages);
+      }
+    });
+  }
+
+  logout() {
+    this.authService.logout();
+    this.getScheduledArrivals(this.numPages);
+  }
+
   removeFlight(flight: Flight) {};
+
+  triggerPlane(duration: number = 10, to_waypoint: number = 4) {
+    if (this.planeFlyover) return;
+    this.flyoverDuration = duration;
+    const elapsed = (4 - Math.min(to_waypoint, 4)) / 8 * duration;
+    this.flyoverDelay = -elapsed;
+    const remaining = duration - elapsed;
+    this.planeFlyover = true;
+    setTimeout(() => this.planeFlyover = false, remaining * 1000);
+  }
+
+  async initFlyoverTracking() {
+    clearInterval(this.nearPollInterval);
+    this.nearFlights.clear();
+
+    const top10 = [...this.flights].slice(0, 10);
+    for (const flight of top10) {
+      const position = await this.aeroAPIservice.getFlightPosition(flight.fa_flight_id);
+      if (!position?.last_position) continue;
+      this.scheduleFlight(flight, position.last_position);
+    }
+
+    this.nearPollInterval = setInterval(() => this.pollNearFlights(), 5 * 60 * 1000);
+  }
+
+  scheduleFlight(flight: Flight, lastPosition: any) {
+    const to_waypoint = flight.calcDistance(Airport.finalWP, lastPosition);
+    const groundspeedMph = lastPosition.groundspeed * 1.15078;
+
+    if (to_waypoint < 4) {
+      const duration = Math.round(8 / groundspeedMph * 3600);
+      this.triggerPlane(duration, to_waypoint);
+    } else if (to_waypoint < 20) {
+      this.nearFlights.add(flight.fa_flight_id);
+    } else {
+      const sleepMs = (to_waypoint - 20) / groundspeedMph * 3600 * 1000;
+      setTimeout(() => this.wakeUpFlight(flight.fa_flight_id), sleepMs);
+    }
+  }
+
+  async wakeUpFlight(fa_flight_id: string) {
+    if (!this.flights.find(f => f.fa_flight_id === fa_flight_id)) return;
+    this.nearFlights.add(fa_flight_id);
+    await this.checkFlight(fa_flight_id);
+  }
+
+  async pollNearFlights() {
+    for (const fa_flight_id of [...this.nearFlights]) {
+      if (!this.flights.find(f => f.fa_flight_id === fa_flight_id)) {
+        this.nearFlights.delete(fa_flight_id);
+        continue;
+      }
+      await this.checkFlight(fa_flight_id);
+    }
+  }
+
+  async checkFlight(fa_flight_id: string) {
+    const flight = this.flights.find(f => f.fa_flight_id === fa_flight_id);
+    if (!flight) return;
+    const position = await this.aeroAPIservice.getFlightPosition(fa_flight_id);
+    if (!position?.last_position) return;
+    const to_waypoint = flight.calcDistance(Airport.finalWP, position.last_position);
+    const groundspeedMph = position.last_position.groundspeed * 1.15078;
+
+    if (to_waypoint > 20) {
+      this.nearFlights.delete(fa_flight_id);
+      const sleepMs = (to_waypoint - 20) / groundspeedMph * 3600 * 1000;
+      setTimeout(() => this.wakeUpFlight(fa_flight_id), sleepMs);
+    } else if (to_waypoint < 4) {
+      const duration = Math.round(8 / groundspeedMph * 3600);
+      this.triggerPlane(duration, to_waypoint);
+    }
+  }
 
   easterEggHunt() {
     console.log(this.easterEggCount);
@@ -124,6 +228,10 @@ export class HomeComponent {
   }
 
   openFlightRadar24(flight: Flight){
+    if (!this.authService.isAuthenticated()) {
+      this.snackBar.open('This is demo mode — data is not live.', undefined, { duration: 3000, verticalPosition: 'top', panelClass: 'demo-toast' });
+      return;
+    }
     let url = "https://www.flightradar24.com/" + flight.getFlight();
     window.open(url, "_blank", "noreferrer");
   }
