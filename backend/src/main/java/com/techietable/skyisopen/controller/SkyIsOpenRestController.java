@@ -5,7 +5,6 @@ import com.techietable.skyisopen.service.SkyisOpenServiceLayer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -22,7 +21,7 @@ public class SkyIsOpenRestController {
         if (maxPages == null)
             maxPages = 1;
         else if (maxPages < 1 || maxPages > 10)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "max_pages must be between 1 and 10 inclusively");
+            throw new SkyIsExceptional(HttpStatus.BAD_REQUEST, "max_pages must be between 1 and 10 inclusively");
 
         return service.scheduledFlights(maxPages);
     }
@@ -34,7 +33,7 @@ public class SkyIsOpenRestController {
         if (maxPages == null)
             maxPages = 1;
         else if (maxPages < 1 || maxPages > 10)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "max_pages must be between 1 and 10 inclusively");
+            throw new SkyIsExceptional(HttpStatus.BAD_REQUEST, "max_pages must be between 1 and 10 inclusively");
 
         return service.searchAreaForPlanes(maxPages);
     }
@@ -43,7 +42,7 @@ public class SkyIsOpenRestController {
     public synchronized Flight getFlightPosition(@PathVariable String id) {
 
         if (id == null || id == "")
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "id not specified");
+            throw new SkyIsExceptional(HttpStatus.BAD_REQUEST, "id not specified");
 
         return service.flightPosition(id);
     }

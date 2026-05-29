@@ -1,12 +1,12 @@
 package com.techietable.skyisopen.service;
 
+import com.techietable.skyisopen.controller.SkyIsExceptional;
 import com.techietable.skyisopen.dto.Flight;
 import com.techietable.skyisopen.dao.AeroAPIDao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -52,7 +52,8 @@ public class SkyisOpenServiceLayer {
         Flight flight = dao.flightPosition(requestId, id);
 
         if (flight == null) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Flight " + id + " not found.");
+            log.error("flightPosition: null flight returned for id={}", id);
+            throw new SkyIsExceptional(HttpStatus.INTERNAL_SERVER_ERROR, "Flight " + id + " not found.");
         }
 
         return flight;
