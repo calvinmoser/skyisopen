@@ -201,8 +201,9 @@ export class HomeComponent {
       this.logger.debug(`[SCHEDULE] ${flight.fa_flight_id} — IN RANGE (<4 mi), triggering animation (duration=${duration}s)`);
       this.triggerPlane(duration, to_waypoint);
     } else if (to_waypoint < 20) {
-      this.logger.debug(`[SCHEDULE] ${flight.fa_flight_id} — NEAR (<20 mi), added to nearFlights poll`);
-      this.nearFlights.add(flight.fa_flight_id);
+      const sleepMs = (to_waypoint - 2) / groundspeedMph * 3600 * 1000;
+      this.logger.debug(`[SCHEDULE] ${flight.fa_flight_id} — NEAR (${to_waypoint.toFixed(2)} mi), sleeping ${(sleepMs/60000).toFixed(1)} min until ~2 mi`);
+      setTimeout(() => this.wakeUpFlight(flight.fa_flight_id), sleepMs);
     } else {
       const sleepMs = (to_waypoint - 20) / groundspeedMph * 3600 * 1000;
       this.logger.debug(`[SCHEDULE] ${flight.fa_flight_id} — FAR (${to_waypoint.toFixed(2)} mi), sleeping ${(sleepMs/60000).toFixed(1)} min`);
@@ -250,7 +251,9 @@ export class HomeComponent {
       this.logger.debug(`[CHECK] ${fa_flight_id} — IN RANGE (<4 mi), triggering animation (duration=${duration}s)`);
       this.triggerPlane(duration, to_waypoint);
     } else {
-      this.logger.debug(`[CHECK] ${fa_flight_id} — still near (4–20 mi), staying in nearFlights`);
+      const sleepMs = (to_waypoint - 2) / groundspeedMph * 3600 * 1000;
+      this.logger.debug(`[CHECK] ${fa_flight_id} — still near (${to_waypoint.toFixed(2)} mi), sleeping ${(sleepMs/60000).toFixed(1)} min until ~2 mi`);
+      setTimeout(() => this.wakeUpFlight(fa_flight_id), sleepMs);
     }
   }
 
