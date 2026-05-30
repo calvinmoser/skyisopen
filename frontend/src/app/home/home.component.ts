@@ -8,6 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { AeroAPIService } from '../services/aeroapi.service';
 import { AuthService } from '../services/auth.service';
+import { PlaneService } from '../services/plane.service';
 import { LoginDialogComponent } from '../login-dialog/login-dialog.component';
 import { Flight, Position } from '../model/flight';
 import { Airport } from '../model/airport';
@@ -39,9 +40,12 @@ export class HomeComponent {
 
   easterEgg: boolean = false;
   easterEggCount: number = 0;
-  flyovers: { duration: number, delay: number }[] = [];
+  flyovers: { duration: number, delay: number, image: string, width: string, flip: boolean }[] = [];
+
+  readonly clickFlight = { operator: 'FDX', aircraft_type: 'B77L', codeshares: [], getFlight: () => 'FDX B77L' } as unknown as Flight;
 
   private nearFlights: Set<string> = new Set();
+  private animatingFlights: Set<string> = new Set();
   private nearPollInterval: any;
   private flightStatus: Map<string, { flight: string, to_airport: number, to_waypoint: number, groundspeed: number, tier: string }> = new Map();
 
@@ -73,7 +77,7 @@ export class HomeComponent {
     }
   }
 
-  constructor(private aeroAPIservice: AeroAPIService, public authService: AuthService, private dialog: MatDialog, private snackBar: MatSnackBar, private logger: NGXLogger) {}
+  constructor(private aeroAPIservice: AeroAPIService, public authService: AuthService, private dialog: MatDialog, private snackBar: MatSnackBar, private logger: NGXLogger, private planeService: PlaneService) {}
 
   ngOnInit(): void {
     if (window.innerWidth < 365) {
@@ -189,13 +193,34 @@ export class HomeComponent {
 
   removeFlight(flight: Flight) {};
 
-  triggerPlane(duration: number = 10, to_waypoint: number = 4) {
+  onPlaneImageError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    this.logger.debug(`[FLYOVER] Image not found: ${img.src}, falling back to SVG`);
+    img.src = '/assets/plane.svg';
+  }
+
+  async triggerPlane(duration: number = 10, to_waypoint: number = 4, flight?: Flight, source: string = '?') {
     const elapsed = (4 - Math.min(to_waypoint, 4)) / 8 * duration;
     const remaining = duration - elapsed;
-    this.logger.debug(`[FLYOVER] Triggering animation — to_waypoint=${to_waypoint.toFixed(2)} mi, duration=${duration}s, elapsed=${elapsed.toFixed(1)}s, remaining=${remaining.toFixed(1)}s`);
-    const flyover = { duration, delay: -elapsed };
+    const id = flight?.fa_flight_id;
+    if (id && this.animatingFlights.has(id)) {
+      this.logger.debug(`[FLYOVER] [${source}] Skipping — ${flight!.getFlight()} already animating`);
+      return;
+    }
+    const cs   = flight?.codeshares ?? [];
+    const op   = flight?.operator ?? '';
+    const type = flight?.aircraft_type ?? '';
+    const image = await this.planeService.getImage(cs, op, type);
+    const width = await this.planeService.getWidth(cs, op, type);
+    const flip  = await this.planeService.shouldFlip(cs, op, type);
+    this.logger.debug(`[FLYOVER] [${source}] Triggering animation — ${flight?.getFlight() ?? 'no flight'} to_waypoint=${to_waypoint.toFixed(2)} mi, duration=${duration}s, elapsed=${elapsed.toFixed(1)}s, remaining=${remaining.toFixed(1)}s image=${image} width=${width}`);
+    if (id) this.animatingFlights.add(id);
+    const flyover = { duration, delay: -elapsed, image, width, flip };
     this.flyovers.push(flyover);
-    setTimeout(() => this.flyovers = this.flyovers.filter(f => f !== flyover), remaining * 1000);
+    setTimeout(() => {
+      this.flyovers = this.flyovers.filter(f => f !== flyover);
+      if (id) this.animatingFlights.delete(id);
+    }, remaining * 1000);
   }
 
   async initFlyoverTracking() {
@@ -223,7 +248,7 @@ export class HomeComponent {
     if (to_waypoint < 4) {
       const duration = Math.round(8 / groundspeedMph * 3600);
       this.logger.debug(`[SCHEDULE] ${flight.getFlight()} — IN RANGE (<4 mi), triggering animation (duration=${duration}s)`);
-      this.triggerPlane(duration, to_waypoint);
+      this.triggerPlane(duration, to_waypoint, flight, 'SCHEDULE');
     } else if (to_waypoint < 20) {
       const sleepMs = (to_waypoint - 2) / groundspeedMph * 3600 * 1000;
       this.logger.debug(`[SCHEDULE] ${flight.getFlight()} — NEAR (${to_waypoint.toFixed(2)} mi), sleeping ${(sleepMs/60000).toFixed(1)} min until ~2 mi`);
@@ -276,7 +301,7 @@ export class HomeComponent {
     } else if (to_waypoint < 4) {
       const duration = Math.round(8 / groundspeedMph * 3600);
       this.logger.debug(`[CHECK] ${flight.getFlight()} — IN RANGE (<4 mi), triggering animation (duration=${duration}s)`);
-      this.triggerPlane(duration, to_waypoint);
+      this.triggerPlane(duration, to_waypoint, flight, 'CHECK');
     } else {
       const sleepMs = (to_waypoint - 2) / groundspeedMph * 3600 * 1000;
       this.logger.debug(`[CHECK] ${flight.getFlight()} — still near (${to_waypoint.toFixed(2)} mi), sleeping ${(sleepMs/60000).toFixed(1)} min until ~2 mi`);
@@ -292,6 +317,7 @@ export class HomeComponent {
       this.easterEggCount = 0;
     }
   }
+
 
   openFlightRadar24(flight: Flight){
     if (!this.authService.isAuthenticated()) {

@@ -1,13 +1,13 @@
 <mat-toolbar class="header mat-elevation-z8" [class.header-animations]="easterEgg">
   <img src="/assets/logo.png" alt="logo" aria-hidden="true" />
   <span class="spacer"></span>
-  <span style="text-overflow: ellipsis; white-space: nowrap;overflow: hidden; cursor: pointer;" (click)="triggerPlane()">{{ title }}</span>
+  <span style="text-overflow: ellipsis; white-space: nowrap;overflow: hidden; cursor: pointer;" (click)="triggerPlane(10, 4, clickFlight, 'CLICK')">{{ title }}</span>
   <span class="spacer-flex"></span>
   <span *ngIf="!authService.isAuthenticated()" class="demo-badge">DEMO</span>
   <button mat-button *ngIf="!authService.isAuthenticated()" (click)="openLogin()">Login</button>
   <button mat-button *ngIf="authService.isAuthenticated()" (click)="logout()">Logout</button>
 </mat-toolbar>
-<img *ngFor="let flyover of flyovers" src="/assets/plane.svg" class="plane-flyover" [style.animation-duration]="flyover.duration + 's'" [style.animation-delay]="flyover.delay + 's'" alt="plane" />
+<img *ngFor="let flyover of flyovers" [src]="flyover.image" (error)="onPlaneImageError($event)" class="plane-flyover" [style.width]="flyover.width" [style.--plane-flip]="flyover.flip ? -1 : 1" [style.animation-duration]="flyover.duration + 's'" [style.animation-delay]="flyover.delay + 's'" alt="plane" />
 <div class="sec-toolbar left-angle"></div>
 <div class="sec-toolbar right-angle"></div>
 <div class="sec-toolbar middle-fill"></div>

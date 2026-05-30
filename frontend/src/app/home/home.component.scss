@@ -146,17 +146,19 @@ td {
 }
 
 @keyframes flyover {
-  from { left: 110vw; }
-  to   { left: -120px; }
+  from { transform: translateX(110vw) translateY(-50%) scaleX(var(--plane-flip, 1)); }
+  to   { transform: translateX(-120px) translateY(calc(-50% + 8vw)) scaleX(var(--plane-flip, 1)); }
 }
 
 .plane-flyover {
   position: fixed;
-  top: 68px;
-  width: 100px;
-  height: 50px;
+  top: 93px;
+  left: 0;
+  width: 248px;
+  height: auto;
   z-index: 20;
   pointer-events: none;
+  will-change: transform;
   animation: flyover 10s linear forwards;
 }
 

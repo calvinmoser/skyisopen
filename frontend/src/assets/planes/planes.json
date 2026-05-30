@@ -1,0 +1,18 @@
+{
+  "AAL-B738":  { "file": "AAL-B738.png",  "length": 39.5, "facing": "left"  },
+  "AAL-CRJ9":  { "file": "AAL-CRJ9.png",  "length": 36.4, "facing": "left"  },
+  "AAL-E75L":  { "file": "AAL-E75L.png",  "length": 31.7, "facing": "left"  },
+  "AAL-E75S":  { "file": "AAL-E75L.png",  "length": 29.9, "facing": "left"  },
+  "B737":      { "file": "B737.png",       "length": 39.5, "facing": "right"  },
+  "DAL-BCS3":  { "file": "DAL-BCS3.png",  "length": 38.7, "facing": "right" },
+  "DAL-CRJ9":  { "file": "DAL-CRJ9.png",  "length": 36.4, "facing": "left"  },
+  "EJA-E55P":  { "file": "EJA-E55P.png",  "length": 14.9, "facing": "left"  },
+  "FDX-A306":  { "file": "FDX-A306.png",  "length": 54.1, "facing": "left"  },
+  "FDX-B763":  { "file": "FDX-B763.png",  "length": 54.9, "facing": "left"  },
+  "FDX-B77L":  { "file": "FDX-B77L.png",  "length": 73.9, "facing": "left"  },
+  "FFT-A20N":  { "file": "FFT-A20N.png",  "length": 37.6, "facing": "right" },
+  "FSR-LJ45":  { "file": "FSR-LJ45.png",  "length": 17.8, "facing": "right" },
+  "SWA-B38M":  { "file": "SWA-B38M.png",  "length": 40.0, "facing": "left"  },
+  "SWA-B738":  { "file": "SWA-B738.png",  "length": 39.5, "facing": "left"  },
+  "UAL-E75L":  { "file": "UAL-E75L.png",  "length": 31.7, "facing": "left"  }
+}
