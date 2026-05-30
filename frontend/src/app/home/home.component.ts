@@ -51,7 +51,8 @@ export class HomeComponent {
     return 'FAR';
   }
 
-  private updateFlightStatus(flight: Flight, to_waypoint: number, groundspeedMph: number) {
+  private updateFlightStatus(flight: Flight, to_waypoint: number, groundspeedMph: number, altitude: number = 0) {
+    if (!altitude) return;
     this.flightStatus.set(flight.fa_flight_id, {
       flight: flight.getFlight(),
       to_airport: flight.to_airport,
@@ -153,7 +154,7 @@ export class HomeComponent {
           this.dataSource.data = this.flights;
 
           this.logger.debug(`[IDENTIFY] [${i}] ${flight.getFlight()} — to_waypoint: ${to_waypoint.toFixed(2)} mi, to_airport: ${to_airport.toFixed(2)} mi`);
-          this.updateFlightStatus(flight, to_waypoint, position.last_position.groundspeed * 1.15078);
+          this.updateFlightStatus(flight, to_waypoint, position.last_position.groundspeed * 1.15078, position.last_position.altitude);
 
           if (to_waypoint < 2) {
             this.logger.debug(`[IDENTIFY] [${i}] ${flight.getFlight()} — IN TARGET ZONE (to_waypoint < 2), setting color=target`);
@@ -217,7 +218,7 @@ export class HomeComponent {
     flight.to_airport = flight.calcDistance(Airport.position, lastPosition);
 
     this.logger.debug(`[SCHEDULE] ${flight.getFlight()} — to_waypoint=${to_waypoint.toFixed(2)} mi, groundspeed=${groundspeedMph.toFixed(0)} mph`);
-    this.updateFlightStatus(flight, to_waypoint, groundspeedMph);
+    this.updateFlightStatus(flight, to_waypoint, groundspeedMph, lastPosition.altitude);
 
     if (to_waypoint < 4) {
       const duration = Math.round(8 / groundspeedMph * 3600);
@@ -265,7 +266,7 @@ export class HomeComponent {
     flight.to_airport = flight.calcDistance(Airport.position, position.last_position);
 
     this.logger.debug(`[CHECK] ${flight.getFlight()} — to_waypoint=${to_waypoint.toFixed(2)} mi, groundspeed=${groundspeedMph.toFixed(0)} mph`);
-    this.updateFlightStatus(flight, to_waypoint, groundspeedMph);
+    this.updateFlightStatus(flight, to_waypoint, groundspeedMph, position.last_position.altitude);
 
     if (to_waypoint > 20) {
       const sleepMs = (to_waypoint - 20) / groundspeedMph * 3600 * 1000;
