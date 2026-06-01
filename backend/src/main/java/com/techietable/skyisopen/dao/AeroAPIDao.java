@@ -30,6 +30,8 @@ public class AeroAPIDao {
     private final Map<Instant, Integer> timestamps = new HashMap<>();
     private final Set<UUID> validRequests = new HashSet<>();
 
+    private final RestTemplate restTemplate = new RestTemplate();
+
     public AeroAPIDao(@Value( "${aeroapi.password}") String password) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("x-apikey", password);
@@ -61,7 +63,7 @@ public class AeroAPIDao {
         }
 
         try {
-            ResponseEntity<ScheduledArrivals> response = new RestTemplate().exchange(
+            ResponseEntity<ScheduledArrivals> response = restTemplate.exchange(
                 ARRIVALS_URL,
                 HttpMethod.GET,
                 entity,
@@ -92,7 +94,7 @@ public class AeroAPIDao {
             throw new SkyIsExceptional(HttpStatus.INTERNAL_SERVER_ERROR, "Internal request Id not valid.");
         }
         try {
-            ResponseEntity<SearchFlights> response = new RestTemplate().exchange(
+            ResponseEntity<SearchFlights> response = restTemplate.exchange(
                 SEARCH_URL,
                 HttpMethod.GET,
                 entity,
@@ -126,7 +128,7 @@ public class AeroAPIDao {
         String url = FLIGHT_URL + id + "/position";
 
         try {
-            ResponseEntity<Flight> response = new RestTemplate().exchange(url, HttpMethod.GET, entity, Flight.class);
+            ResponseEntity<Flight> response = restTemplate.exchange(url, HttpMethod.GET, entity, Flight.class);
 
             if (response.getBody() == null) {
                 log.error("flightPosition: empty response body, id={}, status={}", id, response.getStatusCode());
