@@ -3,7 +3,7 @@
   <span class="spacer"></span>
   <span style="text-overflow: ellipsis; white-space: nowrap;overflow: hidden; cursor: pointer;" (click)="triggerPlane(10, 4, clickFlight, 'CLICK')">{{ title }}</span>
   <span class="spacer-flex"></span>
-  <span *ngIf="!authService.isAuthenticated()" class="demo-badge">DEMO</span>
+  <span *ngIf="!authService.isAuthenticated()" class="demo-badge" (click)="onDemoBadgeTap()">DEMO</span>
   <button mat-button *ngIf="!authService.isAuthenticated()" (click)="openLogin()">Login</button>
   <button mat-button *ngIf="authService.isAuthenticated()" (click)="logout()">Logout</button>
 </mat-toolbar>

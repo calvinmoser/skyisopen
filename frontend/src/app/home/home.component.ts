@@ -40,6 +40,7 @@ export class HomeComponent {
 
   easterEgg: boolean = false;
   easterEggCount: number = 0;
+  demoBadgeTaps: number = 0;
   flyovers: { duration: number, delay: number, image: string, width: string, flip: boolean }[] = [];
 
   readonly clickFlight = { operator: 'FDX', aircraft_type: 'B77L', codeshares: [], getFlight: () => 'FDX B77L' } as unknown as Flight;
@@ -318,6 +319,25 @@ export class HomeComponent {
     }
   }
 
+
+  onDemoBadgeTap() {
+    this.demoBadgeTaps++;
+    if (this.demoBadgeTaps >= 7) {
+      this.demoBadgeTaps = 0;
+      this.startParade();
+    }
+  }
+
+  async startParade() {
+    let elapsed = 0;
+    for (const flight of this.flights) {
+      const widthStr = await this.planeService.getWidth(flight.codeshares ?? [], flight.operator ?? '', flight.aircraft_type ?? '');
+      const px = parseInt(widthStr);
+      const delay = 2000 + (px / 400) * 2000;
+      setTimeout(() => this.triggerPlane(10, 4, flight, 'PARADE'), elapsed);
+      elapsed += delay;
+    }
+  }
 
   openFlightRadar24(flight: Flight){
     if (!this.authService.isAuthenticated()) {
