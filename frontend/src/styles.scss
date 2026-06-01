@@ -69,7 +69,26 @@ $light-theme: mat.define-light-theme((
 }
 
 .background {
+  isolation: isolate;
   background-color: mat.get-theme-color($dark-theme, primary, default);
-  background-image: url("assets/background.png");
-  background-size: 60%;
+
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("assets/background.png");
+    background-size: 60%;
+    z-index: -1;
+    pointer-events: none;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .background {
+    background-color: mat.get-theme-color($light-theme, primary, lighter);
+
+    &::before {
+      filter: invert(1);
+    }
+  }
 }
